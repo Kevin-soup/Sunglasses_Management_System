@@ -1,13 +1,66 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Database Schema File.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+}
+
+model Customer {
+  customerID  Int       @id @default(autoincrement())
+  firstName   String    @db.VarChar(100)
+  lastName    String    @db.VarChar(100)
+  email       String?   @db.VarChar(100)
+  phoneNumber String    @db.VarChar(20)
+  invoices    Invoice[]
+
+  @@map("Customers")
+}
+
+model Employee {
+  employeeID Int       @id @default(autoincrement())
+  firstName  String    @db.VarChar(100)
+  lastName   String    @db.VarChar(100)
+  hireDate   DateTime  @db.Date
+  isActive   Boolean   @default(true) // Maps natively from tinyint(1)
+  invoices   Invoice[]
+
+  @@map("Employees")
+}
+
+model Invoice {
+  invoiceID         Int                 @id @default(autoincrement())
+  customerID        Int
+  employeeID        Int
+  invoiceDate       DateTime            @db.Date
+  customer          Customer            @relation(fields: [customerID], references: [customerID], onDelete: Restrict)
+  employee          Employee            @relation(fields: [employeeID], references: [employeeID], onDelete: Restrict)
+  invoiceSunglasses InvoiceSunglasses[]
+
+  @@map("Invoices")
+}
+
+model Sunglasses {
+  itemID            Int                 @id @default(autoincrement())
+  itemName          String              @db.VarChar(100)
+  retailPrice       Decimal             @default(0.00) @db.Decimal(5, 2)
+  stockQuantity     Int
+  isListed          Boolean             @default(true)
+  invoiceSunglasses InvoiceSunglasses[]
+
+  @@map("Sunglasses")
+}
+
+model InvoiceSunglasses {
+  invoiceItemID Int        @id @default(autoincrement())
+  invoiceID     Int
+  itemID        Int
+  quantity      Int
+  invoice       Invoice    @relation(fields: [invoiceID], references: [invoiceID], onDelete: Cascade)
+  sunglasses    Sunglasses @relation(fields: [itemID], references: [itemID], onDelete: Restrict)
+
+  @@unique([invoiceID, itemID], map: "unique_invoiceID_sunglassesID")
+  @@map("InvoiceSunglasses")
 }
