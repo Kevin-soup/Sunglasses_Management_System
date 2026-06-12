@@ -3,6 +3,7 @@
 'use server'
 
 import { prisma } from '@/services/prisma'
+import { revalidatePath } from 'next/cache'
 
 /**
  * PROCEDURE: sp_employees_table
@@ -21,25 +22,30 @@ export async function getEmployeesTable() {
 
 /**
  * PROCEDURE: sp_create_employee
- * PARAMETERS: p_firstName, p_lastName, p_hireDate, p_isActive
+ * PARAMETERS: p_firstName, p_lastName, p_hireDateStr, p_isActive
  * INSERT INTO Employees (firstName, lastName, hireDate, isActive) VALUES (:firstName_input, :lastName_input, :hireDate_input, :isActive_input);
  */
 export async function createEmployee(
   p_firstName: string,
   p_lastName: string,
-  p_hireDate: Date,
+  p_hireDateStr: string, // 🌟 FIXED: Expect string data token straight from the client form
   p_isActive: number
 ) {
   try {
+    // 🌟 FIXED: Instantiate the date object at local midnight to block timezone reductions
+    const hireDate = new Date(p_hireDateStr + 'T00:00:00')
+
     await prisma.employees.create({
       data: {
         firstName: p_firstName,
         lastName: p_lastName,
-        hireDate: p_hireDate,
+        hireDate: hireDate,
         isActive: p_isActive,
       },
     })
-    return { success: true }
+
+    revalidatePath('/employees')
+    return { success: true, error: null }
   } catch {
     return { success: false, error: 'ERR_EMPLOYEE_CREATE_FAILED' }
   }
@@ -47,27 +53,32 @@ export async function createEmployee(
 
 /**
  * PROCEDURE: sp_update_employee
- * PARAMETERS: p_employeeID, p_firstName, p_lastName, p_hireDate, p_isActive
+ * PARAMETERS: p_employeeID, p_firstName, p_lastName, p_hireDateStr, p_isActive
  * UPDATE Employees SET firstName = :firstName_input, lastName = :lastName_input, hireDate = :hireDate_input, isActive = :isActive_input WHERE employeeID = :employeeID_selected_from_employees_page;
  */
 export async function updateEmployee(
   p_employeeID: number,
   p_firstName: string,
   p_lastName: string,
-  p_hireDate: Date,
+  p_hireDateStr: string, // 🌟 FIXED: Expect string data token straight from the client form
   p_isActive: number
 ) {
   try {
+    // 🌟 FIXED: Instantiate the date object at local midnight to block timezone reductions
+    const hireDate = new Date(p_hireDateStr + 'T00:00:00')
+
     await prisma.employees.update({
       where: { employeeID: p_employeeID },
       data: {
         firstName: p_firstName,
         lastName: p_lastName,
-        hireDate: p_hireDate,
+        hireDate: hireDate,
         isActive: p_isActive,
       },
     })
-    return { success: true }
+
+    revalidatePath('/employees')
+    return { success: true, error: null }
   } catch {
     return { success: false, error: 'ERR_EMPLOYEE_UPDATE_FAILED' }
   }

@@ -21,8 +21,220 @@
   }
 }
 
+/* --- Global Body --- */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* --- Global Typography --- */
+h1 {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 16px 0;
+  color: #000000;
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 24px 0 12px 0;
+  color: #000000;
+}
+
+/* --- Table Properties --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  background-color: #ffffff;
+}
+
+th, td {
+  border: 1px solid #cacdd1; 
+  padding: 12px;
+  text-align: left;
+  font-size: 13px;
+  color: #000000;
+}
+
+th {
+  background-color: #f1f3f4;
+  font-weight: bold;
+  color: #202124;
+}
+
+tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+tr:hover {
+  background-color: #f1f3f4;
+}
+
+/* --- Button Properties --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Delete Button */
+.btn-delete {
+  background-color: #d9534f;
+  color: #ffffff;
+  border: 1px solid #d43f3a;
+  padding: 4px 10px;
+}
+
+.btn-delete:hover {
+  background-color: #c9302c;
+  border-color: #ac2925;
+}
+
+/* Save Button */
+.btn-save {
+  background-color: #5cb85c;
+  color: #ffffff;
+  border: 1px solid #4cae4c;
+  padding: 6px 12px;
+}
+
+.btn-save:hover {
+  background-color: #449d44;
+  border-color: #398439;
+}
+
+/* --- Form Properties --- */
+form {
+  display: flex;
+  flex-direction: row; 
+  flex-wrap: wrap;     
+  align-items: flex-end; 
+  gap: 16px;         
+  visibility: visible;
+  opacity: 1;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+form input,
+form select,
+form textarea {
+  display: inline-block;
+  visibility: visible;
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #cccccc;
+  padding: 6px;
+  border-radius: 4px;
+  height: 32px; 
+  box-sizing: border-box;
+}
+
+/* Align buttons inside horizontal line */
+form button.btn {
+  height: 32px;
+  box-sizing: border-box;
+}
+
+/* --- Master Form Placeholder and Dropdown Match Rules --- */
+
+/* Placeholders */
+form input::placeholder {
+  color: transparent;
+  transition: color 0.2s ease;
+}
+form input:hover::placeholder {
+  color: #a9a9a9;
+}
+
+/* Dates (dd/mm/yyyy) */
+form input[type="date"]::-webkit-datetime-edit-text,
+form input[type="date"]::-webkit-datetime-edit-month-field,
+form input[type="date"]::-webkit-datetime-edit-day-field,
+form input[type="date"]::-webkit-datetime-edit-year-field {
+  color: transparent;
+  transition: color 0.2s ease;
+}
+form input[type="date"]:hover::-webkit-datetime-edit-text,
+form input[type="date"]:hover::-webkit-datetime-edit-month-field,
+form input[type="date"]:hover::-webkit-datetime-edit-day-field,
+form input[type="date"]:hover::-webkit-datetime-edit-year-field {
+  color: #a9a9a9;
+}
+
+/* Add forms */
+form select:invalid {
+  color: transparent;
+  border-color: #cccccc;
+  background-color: #ffffff;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  /* 🌟 Strips the native arrow out on load */
+  background-image: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+form select:invalid:hover {
+  color: #a9a9a9;
+  /* 🌟 Restores the native dropdown indicator layout context on hover */
+  -webkit-appearance: select;
+  appearance: select;
+}
+
+/* Update forms */
+form select:disabled,
+form input:disabled {
+  color: transparent;      
+  border-color: #cccccc;      
+  background-color: #ffffff;  
+  -webkit-text-fill-color: transparent; 
+  opacity: 1;       
+  transition: color 0.2s ease, -webkit-text-fill-color 0.2s ease;
+  /* 🌟 Strips arrow out from locked configurations */
+  -webkit-appearance: none;
+  appearance: none;
+}
+form select:disabled:hover,
+form input:disabled:hover {
+  color: #a9a9a9;
+  -webkit-text-fill-color: #a9a9a9;
+  -webkit-appearance: select;
+  appearance: select;
+}
+
+/* Solid black when fields are filled */
+form select:valid:not(:disabled) {
+  color: #000000;
+  -webkit-appearance: select;
+  appearance: select;
+}
+
+form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-text,
+form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-month-field,
+form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-day-field,
+form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-year-field {
+  color: #000000;
+}
+
+/* Dropdown options */
+form select option {
+  color: #000000;
+  background-color: #ffffff;
 }

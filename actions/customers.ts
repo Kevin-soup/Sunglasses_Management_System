@@ -43,7 +43,7 @@ export async function createCustomer(
         phoneNumber: p_phoneNumber,
       },
     })
-    return { success: true }
+    return { success: true, error: null }
   } catch {
     return { success: false, error: 'ERR_CUSTOMER_CREATE_FAILED' }
   }
@@ -71,7 +71,7 @@ export async function updateCustomer(
         phoneNumber: p_phoneNumber,
       },
     })
-    return { success: true }
+    return { success: true, error: null }
   } catch {
     return { success: false, error: 'ERR_CUSTOMER_UPDATE_FAILED' }
   }

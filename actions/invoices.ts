@@ -1,18 +1,16 @@
 // Procedure layer for invoices table.
-
 'use server'
 
-import { prisma } from '@/services/prisma'
+import { prisma } from '../services/prisma'
+import { revalidatePath } from 'next/cache'
+
+/* ==========================================================================
+   SECTION 1: CORE INVOICE CRUD (For app/invoices/page.tsx)
+   ========================================================================== */
 
 /**
  * PROCEDURE: sp_invoices_table
- * PURPOSE: Read all invoice records joined with customer and employee names.
- * SELECT i.invoiceID, c.firstName AS customerFirstName, c.lastName AS customerLastName, 
- * e.firstName AS employeeFirstName, e.lastName AS employeeLastName, 
- * DATE_FORMAT(i.invoiceDate, '%Y-%m-%d') AS invoiceDate 
- * FROM Invoices i
- * JOIN Customers c ON i.customerID = c.customerID
- * JOIN Employees e ON i.employeeID = e.employeeID;
+ * PURPOSE: Fetch all parent sales invoices with customer and employee relations
  */
 export async function getInvoicesTable() {
   try {
@@ -23,257 +21,257 @@ export async function getInvoicesTable() {
       },
       orderBy: { invoiceID: 'asc' },
     })
-  } catch {
+  } catch (error) {
+    console.error('Fetch invoices error:', error)
     throw new Error('ERR_INVOICES_FETCH_FAILED')
   }
 }
 
 /**
- * PROCEDURE: sp_customers_dropdown
- * PURPOSE: Populate customer selection dropdown on the invoice creation interface.
- * SELECT customerID, firstName, lastName FROM Customers ORDER BY lastName ASC;
+ * PROCEDURE: sp_get_customers_dropdown
+ * PURPOSE: Hydrate customer lookup components
  */
 export async function getCustomersDropdown() {
   try {
     return await prisma.customers.findMany({
-      select: { customerID: true, firstName: true, lastName: true },
-      orderBy: { lastName: 'asc' },
+      orderBy: { customerID: 'asc' },
     })
-  } catch {
+  } catch (error) {
+    console.error('Fetch customers dropdown error:', error)
     throw new Error('ERR_CUSTOMERS_DROPDOWN_FAILED')
   }
 }
 
 /**
- * PROCEDURE: sp_employees_dropdown
- * PURPOSE: Populate active employee selection dropdown on the invoice creation interface.
- * SELECT employeeID, firstName, lastName FROM Employees WHERE isActive = 1 ORDER BY lastName ASC;
+ * PROCEDURE: sp_get_employees_dropdown
+ * PURPOSE: Hydrate employee lookup components
  */
 export async function getEmployeesDropdown() {
   try {
     return await prisma.employees.findMany({
-      where: { isActive: 1 },
-      select: { employeeID: true, firstName: true, lastName: true },
-      orderBy: { lastName: 'asc' },
+      orderBy: { employeeID: 'asc' },
     })
-  } catch {
+  } catch (error) {
+    console.error('Fetch employees dropdown error:', error)
     throw new Error('ERR_EMPLOYEES_DROPDOWN_FAILED')
   }
 }
 
 /**
  * PROCEDURE: sp_create_invoice
- * PARAMETERS: p_customerID, p_employeeID, p_invoiceDate
- * INSERT INTO Invoices (customerID, employeeID, invoiceDate) VALUES (:customerID_input, :employeeID_input, :invoiceDate_input);
+ * PURPOSE: Insert a new parent invoice ledger record (Without totalAmount)
  */
-export async function createInvoice(p_customerID: number, p_employeeID: number, p_invoiceDate: Date) {
+export async function createInvoice(
+  customerID: number,
+  employeeID: number,
+  invoiceDateStr: string // 🌟 FIXED: Expect clean raw string from form data
+) {
   try {
+    // 🌟 FIXED: Force server environment to instantiate at local midnight
+    const invoiceDate = new Date(invoiceDateStr + 'T00:00:00')
+
     await prisma.invoices.create({
-      data: { customerID: p_customerID, employeeID: p_employeeID, invoiceDate: p_invoiceDate },
+      data: {
+        customerID,
+        employeeID,
+        invoiceDate,
+      },
     })
-    return { success: true }
-  } catch {
+    
+    revalidatePath('/invoices')
+    return { success: true, error: null }
+  } catch (error) {
+    console.error('Create invoice error:', error)
     return { success: false, error: 'ERR_INVOICE_CREATE_FAILED' }
   }
 }
 
 /**
  * PROCEDURE: sp_update_invoice
- * PARAMETERS: p_invoiceID, p_customerID, p_employeeID, p_invoiceDate
- * UPDATE Invoices SET customerID = :customerID_input, employeeID = :employeeID_input, invoiceDate = :invoiceDate_input WHERE invoiceID = :invoiceID_selected_from_invoices_page;
+ * PURPOSE: Modify attributes of an existing parent sales ledger entry (Without totalAmount)
  */
-export async function updateInvoice(p_invoiceID: number, p_customerID: number, p_employeeID: number, p_invoiceDate: Date) {
+export async function updateInvoice(
+  invoiceID: number,
+  customerID: number,
+  employeeID: number,
+  invoiceDateStr: string // 🌟 FIXED: Expect clean raw string from form data
+) {
   try {
+    // 🌟 FIXED: Force server environment to instantiate at local midnight
+    const invoiceDate = new Date(invoiceDateStr + 'T00:00:00')
+
     await prisma.invoices.update({
-      where: { invoiceID: p_invoiceID },
-      data: { customerID: p_customerID, employeeID: p_employeeID, invoiceDate: p_invoiceDate },
+      where: { invoiceID },
+      data: {
+        customerID,
+        employeeID,
+        invoiceDate,
+      },
     })
-    return { success: true }
-  } catch {
+
+    revalidatePath('/invoices')
+    return { success: true, error: null }
+  } catch (error) {
+    console.error('Update invoice error:', error)
     return { success: false, error: 'ERR_INVOICE_UPDATE_FAILED' }
   }
 }
 
 /**
  * PROCEDURE: sp_delete_invoice
- * PARAMETERS: delete_invoice_id
- * TRANSACTION: Handles cascading dependency cleanup for sub-items manually.
- * DELETE FROM InvoiceSunglasses WHERE invoiceID = :delete_invoice_id;
- * DELETE FROM Invoices WHERE invoiceID = :delete_invoice_id;
+ * PURPOSE: Drop an invoice row entry entirely
  */
-export async function deleteInvoice(delete_invoice_id: number) {
+export async function deleteInvoice(invoiceID: number) {
   try {
-    return await prisma.$transaction(async (tx) => {
-      await tx.invoiceSunglasses.deleteMany({ where: { invoiceID: delete_invoice_id } })
-      await tx.invoices.delete({ where: { invoiceID: delete_invoice_id } })
-      return { success: true }
+    await prisma.invoices.delete({
+      where: { invoiceID },
     })
-  } catch {
+    
+    revalidatePath('/invoices')
+    return { success: true, error: null }
+  } catch (error) {
+    console.error('Delete invoice error:', error)
     return { success: false, error: 'ERR_INVOICE_DELETE_FAILED' }
   }
 }
 
+
+/* ==========================================================================
+   SECTION 2: MANY-TO-MANY INTERSECTION CRUD (For app/invoice_sunglasses/page.tsx)
+   ========================================================================== */
+
 /**
  * PROCEDURE: sp_invoice_sunglasses_table
- * PURPOSE: Read all order items grouped together by parent entity records.
- * SELECT i_s.invoiceItemID, i_s.invoiceID, s.itemName, i_s.quantity, c.lastName AS customerLastName 
- * FROM InvoiceSunglasses i_s
- * JOIN Invoices i ON i_s.invoiceID = i.invoiceID
- * JOIN Customers c ON i.customerID = c.customerID
- * JOIN Sunglasses s ON i_s.itemID = s.itemID;
+ * PURPOSE: Fetch many-to-many child rows, converting product prices to plain strings
  */
 export async function getInvoiceSunglassesTable() {
   try {
-    return await prisma.invoiceSunglasses.findMany({
+    const lines = await prisma.invoiceSunglasses.findMany({
       include: {
-        invoices: { include: { customers: true } },
-        sunglasses: true,
+        invoices: {
+          include: {
+            customers: true
+          }
+        },
+        sunglasses: true
       },
-      orderBy: { invoiceID: 'asc' },
+      orderBy: { invoiceItemID: 'asc' }
     })
-  } catch {
-    throw new Error('ERR_INVOICE_SUNGLASSES_FETCH_FAILED')
+
+    return lines.map(line => {
+      if (line.sunglasses) {
+        return {
+          ...line,
+          sunglasses: {
+            ...line.sunglasses,
+            retailPrice: line.sunglasses.retailPrice.toString()
+          }
+        }
+      }
+      return line
+    })
+  } catch (error) {
+    console.error('Fetch intersection table error:', error)
+    throw new Error('ERR_INTERSECTION_FETCH_FAILED')
   }
 }
 
 /**
- * PROCEDURE: sp_invoices_dropdown
- * PURPOSE: List generated sales orders for selection maps on dependent setups.
- * SELECT i.invoiceID, c.lastName FROM Invoices i JOIN Customers c ON i.customerID = c.customerID ORDER BY i.invoiceID DESC;
+ * PROCEDURE: sp_get_invoices_dropdown
+ * PURPOSE: Hydrate parent transaction lookup parameters safely
  */
 export async function getInvoicesDropdown() {
   try {
     return await prisma.invoices.findMany({
-      include: { customers: true },
-      orderBy: { invoiceID: 'desc' },
+      include: {
+        customers: true
+      },
+      orderBy: { invoiceID: 'asc' }
     })
-  } catch {
+  } catch (error) {
+    console.error('Fetch invoices dropdown error:', error)
     throw new Error('ERR_INVOICES_DROPDOWN_FAILED')
   }
 }
 
 /**
- * PROCEDURE: sp_sunglasses_dropdown
- * PURPOSE: Collect listed merchandise units available for immediate allocation.
- * SELECT itemID, itemName, stockQuantity FROM Sunglasses WHERE isListed = 1;
+ * PROCEDURE: sp_get_sunglasses_dropdown
+ * PURPOSE: Hydrate product catalog line options, converting pricing to strings
  */
 export async function getSunglassesDropdown() {
   try {
-    return await prisma.sunglasses.findMany({
-      where: { isListed: 1 },
-      select: { itemID: true, itemName: true, stockQuantity: true },
+    const products = await prisma.sunglasses.findMany({
+      orderBy: { itemID: 'asc' }
     })
-  } catch {
+
+    return products.map(item => ({
+      ...item,
+      retailPrice: item.retailPrice.toString()
+    }))
+  } catch (error) {
+    console.error('Fetch sunglasses dropdown error:', error)
     throw new Error('ERR_SUNGLASSES_DROPDOWN_FAILED')
   }
 }
 
 /**
  * PROCEDURE: sp_create_invoice_line_item
- * PARAMETERS: form_invoiceID, form_itemID, form_quantity
- * TRANSACTION: Assesses allocation rules and performs atomic inventory deduction.
- * SELECT stockQuantity FROM Sunglasses WHERE itemID = :form_itemID;
- * INSERT INTO InvoiceSunglasses (invoiceID, itemID, quantity) VALUES (:form_invoiceID, :form_itemID, :form_quantity);
- * UPDATE Sunglasses SET stockQuantity = stockQuantity - :form_quantity WHERE itemID = :form_itemID;
+ * PURPOSE: Link an inventory product line cleanly to a target customer receipt order
  */
-export async function createInvoiceLineItem(form_invoiceID: number, form_itemID: number, form_quantity: number) {
+export async function createInvoiceLineItem(invoiceID: number, itemID: number, quantity: number) {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const product = await tx.sunglasses.findUnique({
-        where: { itemID: form_itemID },
-        select: { stockQuantity: true },
-      })
-      if (!product || form_quantity > product.stockQuantity) {
-        throw new Error('ERR_STOCK_INSUFFICIENT')
+    await prisma.invoiceSunglasses.create({
+      data: {
+        invoiceID,
+        itemID,
+        quantity
       }
-      await tx.invoiceSunglasses.create({
-        data: { invoiceID: form_invoiceID, itemID: form_itemID, quantity: form_quantity },
-      })
-      await tx.sunglasses.update({
-        where: { itemID: form_itemID },
-        data: { stockQuantity: { decrement: form_quantity } },
-      })
-      return { success: true }
     })
-  } catch (error: any) {
-    return { success: false, error: error.message || 'ERR_CREATE_LINE_FAILED' }
+    
+    revalidatePath('/invoice_sunglasses')
+    return { success: true, error: null }
+  } catch (error) {
+    console.error('Create intersection line error:', error)
+    return { success: false, error: 'ERR_LINE_ITEM_CREATE_FAILED' }
   }
 }
 
 /**
  * PROCEDURE: sp_update_invoice_line_item
- * PARAMETERS: form_invoiceItemID, form_itemID, form_quantity
- * TRANSACTION: Restores current product balance dynamically before evaluating changes.
+ * PURPOSE: Recalculate and modify properties of an active order row line link
  */
-export async function updateInvoiceLineItem(form_invoiceItemID: number, form_itemID: number, form_quantity: number) {
+export async function updateInvoiceLineItem(invoiceItemID: number, itemID: number, quantity: number) {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const oldItem = await tx.invoiceSunglasses.findUnique({
-        where: { invoiceItemID: form_invoiceItemID },
-      })
-      if (!oldItem) throw new Error('ERR_LINE_NOT_FOUND')
-
-      const product = await tx.sunglasses.findUnique({
-        where: { itemID: form_itemID },
-        select: { stockQuantity: true },
-      })
-      if (!product) throw new Error('ERR_PRODUCT_NOT_FOUND')
-
-      const baseStockOffset = oldItem.itemID === form_itemID ? oldItem.quantity : 0
-      if (form_quantity > (product.stockQuantity + baseStockOffset)) {
-        throw new Error('ERR_STOCK_INSUFFICIENT')
+    await prisma.invoiceSunglasses.update({
+      where: { invoiceItemID },
+      data: {
+        itemID,
+        quantity
       }
-
-      await tx.sunglasses.update({
-        where: { itemID: oldItem.itemID },
-        data: { stockQuantity: { increment: oldItem.quantity } },
-      })
-
-      await tx.invoiceSunglasses.update({
-        where: { invoiceItemID: form_invoiceItemID },
-        data: { itemID: form_itemID, quantity: form_quantity },
-      })
-
-      await tx.sunglasses.update({
-        where: { itemID: form_itemID },
-        data: { stockQuantity: { decrement: form_quantity } },
-      })
-
-      return { success: true }
     })
-  } catch (error: any) {
-    return { success: false, error: error.message || 'ERR_UPDATE_LINE_FAILED' }
+    
+    revalidatePath('/invoice_sunglasses')
+    return { success: true, error: null }
+  } catch (error) {
+    console.error('Update intersection line error:', error)
+    return { success: false, error: 'ERR_LINE_ITEM_UPDATE_FAILED' }
   }
 }
 
 /**
  * PROCEDURE: sp_delete_invoice_line_item
- * PARAMETERS: pid
- * TRANSACTION: Frees up allocated stock back into inventory on item line removal.
- * SELECT itemID, quantity FROM InvoiceSunglasses WHERE invoiceItemID = :pid;
- * UPDATE Sunglasses SET stockQuantity = stockQuantity + :quantity WHERE itemID = :itemID;
- * DELETE FROM InvoiceSunglasses WHERE invoiceItemID = :pid;
+ * PURPOSE: Sever the specific product linkage row link from a transactional sales document
  */
-export async function deleteInvoiceLineItem(pid: number) {
+export async function deleteInvoiceLineItem(invoiceItemID: number) {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const targetLine = await tx.invoiceSunglasses.findUnique({
-        where: { invoiceItemID: pid },
-      })
-      if (!targetLine) throw new Error('ERR_LINE_NOT_FOUND')
-
-      await tx.sunglasses.update({
-        where: { itemID: targetLine.itemID },
-        data: { stockQuantity: { increment: targetLine.quantity } },
-      })
-
-      await tx.invoiceSunglasses.delete({
-        where: { invoiceItemID: pid },
-      })
-
-      return { success: true }
+    await prisma.invoiceSunglasses.delete({
+      where: { invoiceItemID }
     })
-  } catch (error: any) {
-    return { success: false, error: error.message || 'ERR_DELETE_LINE_FAILED' }
+    
+    revalidatePath('/invoice_sunglasses')
+    return { success: true, error: null }
+  } catch (error) {
+    console.error('Delete intersection line error:', error)
+    return { success: false, error: 'ERR_LINE_ITEM_DELETE_FAILED' }
   }
 }

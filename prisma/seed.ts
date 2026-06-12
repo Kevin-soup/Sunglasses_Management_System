@@ -9,7 +9,7 @@ const pool = new Pool({ connectionString: process.env.DIRECT_URL })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClientPkg.PrismaClient({ adapter })
 
-async function main() {
+export async function main() {
   // Use lowercase properties to match the generated Prisma client keys
   await prisma.invoiceSunglasses.deleteMany()
   await prisma.invoices.deleteMany()

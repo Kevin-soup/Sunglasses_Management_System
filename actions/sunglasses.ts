@@ -11,20 +11,25 @@ import { prisma } from '@/services/prisma'
  */
 export async function getSunglassesTable() {
   try {
-    return await prisma.sunglasses.findMany({
+    const records = await prisma.sunglasses.findMany({
       orderBy: { itemID: 'asc' },
     })
+    
+    // 🔥 Convert the Decimal object into a standard plain string for clean network transfers
+    return records.map(item => ({
+      ...item,
+      retailPrice: item.retailPrice.toString()
+    }))
   } catch {
     throw new Error('ERR_SUNGLASSES_FETCH_FAILED')
   }
 }
 
 /**
- * PROCEDURE: sp_create_sunglass
+ * PROCEDURE: sp_create_sunglasses
  * PARAMETERS: p_itemName, p_retailPrice, p_stockQuantity, p_isListed
- * INSERT INTO Sunglasses (itemName, retailPrice, stockQuantity, isListed) VALUES (:itemName_input, :retailPrice_input, :stockQuantity_input, :isListed_input);
  */
-export async function createSunglass(
+export async function createSunglasses(
   p_itemName: string,
   p_retailPrice: number,
   p_stockQuantity: number,
@@ -39,18 +44,17 @@ export async function createSunglass(
         isListed: p_isListed,
       },
     })
-    return { success: true }
+    return { success: true, error: null }
   } catch {
     return { success: false, error: 'ERR_SUNGLASS_CREATE_FAILED' }
   }
 }
 
 /**
- * PROCEDURE: sp_update_sunglass
+ * PROCEDURE: sp_update_sunglasses
  * PARAMETERS: p_itemID, p_itemName, p_retailPrice, p_stockQuantity, p_isListed
- * UPDATE Sunglasses SET itemName = :itemName_input, retailPrice = :retailPrice_input, stockQuantity = :stockQuantity_input, isListed = :isListed_input WHERE itemID = :itemID_selected_from_sunglasses_page;
  */
-export async function updateSunglass(
+export async function updateSunglasses(
   p_itemID: number,
   p_itemName: string,
   p_retailPrice: number,
@@ -67,7 +71,7 @@ export async function updateSunglass(
         isListed: p_isListed,
       },
     })
-    return { success: true }
+    return { success: true, error: null }
   } catch {
     return { success: false, error: 'ERR_SUNGLASS_UPDATE_FAILED' }
   }
