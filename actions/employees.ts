@@ -28,11 +28,10 @@ export async function getEmployeesTable() {
 export async function createEmployee(
   p_firstName: string,
   p_lastName: string,
-  p_hireDateStr: string, // 🌟 FIXED: Expect string data token straight from the client form
+  p_hireDateStr: string, 
   p_isActive: number
 ) {
   try {
-    // 🌟 FIXED: Instantiate the date object at local midnight to block timezone reductions
     const hireDate = new Date(p_hireDateStr + 'T00:00:00')
 
     await prisma.employees.create({
@@ -60,11 +59,10 @@ export async function updateEmployee(
   p_employeeID: number,
   p_firstName: string,
   p_lastName: string,
-  p_hireDateStr: string, // 🌟 FIXED: Expect string data token straight from the client form
+  p_hireDateStr: string, 
   p_isActive: number
 ) {
   try {
-    // 🌟 FIXED: Instantiate the date object at local midnight to block timezone reductions
     const hireDate = new Date(p_hireDateStr + 'T00:00:00')
 
     await prisma.employees.update({

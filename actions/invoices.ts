@@ -64,10 +64,9 @@ export async function getEmployeesDropdown() {
 export async function createInvoice(
   customerID: number,
   employeeID: number,
-  invoiceDateStr: string // 🌟 FIXED: Expect clean raw string from form data
+  invoiceDateStr: string 
 ) {
   try {
-    // 🌟 FIXED: Force server environment to instantiate at local midnight
     const invoiceDate = new Date(invoiceDateStr + 'T00:00:00')
 
     await prisma.invoices.create({
@@ -94,10 +93,9 @@ export async function updateInvoice(
   invoiceID: number,
   customerID: number,
   employeeID: number,
-  invoiceDateStr: string // 🌟 FIXED: Expect clean raw string from form data
+  invoiceDateStr: string 
 ) {
   try {
-    // 🌟 FIXED: Force server environment to instantiate at local midnight
     const invoiceDate = new Date(invoiceDateStr + 'T00:00:00')
 
     await prisma.invoices.update({

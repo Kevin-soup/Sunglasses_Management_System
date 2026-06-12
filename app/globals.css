@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; 
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -12,151 +12,173 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* --- Global Application Shell - Root Layout --- */
-
 .app-body {
   margin: 0; 
-  font-family: Arial, sans-serif; 
-  background-color: #f1f3f4; 
-  color: #000000;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+  background-color: var(--background); 
+  color: var(--foreground);
   min-height: 100vh;
 }
 
-/* Chrome Browser Frame Mockup Header */
 .chrome-header {
-  background-color: #dee1e6; 
-  padding-top: 8px;
-  border-bottom: 1px solid #cacdd1;
+  background-color: #f0f4f8; 
+  padding-top: 16px;
+  border-bottom: 1px solid #e2e8f0; 
 }
 
-/* Control Row Container */
 .control-strip {
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
-  padding: 0 16px 8px 16px;
+  padding: 0 24px 12px 24px;
 }
 
 .app-title {
   font-size: 14px; 
-  font-weight: bold; 
-  color: #202124;
+  font-weight: 600; 
+  color: #1e293b; 
+  letter-spacing: -0.01em;
 }
 
-/* Destructive Database Reset Trigger */
+/* --- Database Reset Button --- */
+
 .reset-btn {
-  background-color: #d9534f;
+  background-color: #ef4444; 
   color: #ffffff;
-  border: 1px solid #d43f3a;
-  border-radius: 4px;
-  padding: 4px 12px;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  padding: 6px 14px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
 .reset-btn:hover {
-  background-color: #c9302c;
-  border-color: #ac2925;
+  background-color: #dc2626;
+  border-color: #b91c1c;
 }
 
-/* Tab Bar Strip Layout */
+/* --- Navigation Bar --- */
+
 .chrome-tab-bar {
   display: flex; 
   align-items: flex-end; 
-  padding-left: 8px; 
-  gap: 4px;
+  padding-left: 20px; 
+  gap: 8px;
 }
 
-/* Base Navigation Tab Defaults */
 .chrome-tab {
-  padding: 8px 20px; 
-  border-top-left-radius: 8px; 
-  border-top-right-radius: 8px; 
+  padding: 10px 16px; 
   text-decoration: none; 
-  font-size: 13px; 
+  font-size: 13.5px; 
   transition: all 0.15s ease;
-  background: #e0e2e5;
-  color: #4a4a4a;
-  font-weight: normal;
-  border-bottom: none;
+  background: transparent;
+  color: #1e293b; 
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px; 
 }
 
-/* Hover State for Unselected Tabs */
 .chrome-tab:not(.active):hover {
-  background: #d8dbdf;
-  color: #202124;
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
-/* Active Tab Highlight Overrides */
 .chrome-tab.active {
   background: #ffffff;
-  color: #d9534f;
-  font-weight: bold;
-  border-bottom: 2px solid #d9534f;
+  color: #0066cc;
+  font-weight: 600;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border-bottom: 1px solid #ffffff; 
 }
 
-/* Core Main Layout Framework Canvas Wrappers */
 .app-main {
-  padding: 24px;
+  padding: 32px 24px;
 }
 
 .app-canvas {
   background-color: #ffffff; 
   border-radius: 8px; 
-  padding: 24px; 
-  box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+  padding: 32px; 
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   min-height: 75vh;
   box-sizing: border-box;
 }
 
 /* --- Global Typography --- */
+
 h1 {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 24px;
+  font-weight: 700;
   margin: 0 0 16px 0;
-  color: #000000;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 h2 {
   font-size: 16px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-  color: #000000;
+  font-weight: 700;
+  margin: 32px 0 16px 0;
+  color: #111827; 
+  letter-spacing: -0.01em;
+  text-transform: none; 
 }
 
-/* --- Table Properties --- */
+/* ---  Table Properties --- */
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
+  margin-top: 20px;
   margin-bottom: 24px;
-  background-color: #ffffff;
+  background-color: transparent;
 }
 
 th, td {
-  border: 1px solid #cacdd1; 
-  padding: 12px;
+  padding: 16px 20px;
   text-align: left;
-  font-size: 13px;
-  color: #000000;
+  font-size: 13.5px;
+  color: #4b5563;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.15s ease;
 }
 
 th {
-  background-color: #f1f3f4;
-  font-weight: bold;
-  color: #202124;
+  background-color: transparent; 
+  font-weight: 700;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 12px;
 }
 
-tr:nth-child(even) {
-  background-color: #f8f9fa;
+td:first-child {
+  font-weight: 600;
+  color: #111827;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-tr:hover {
-  background-color: #f1f3f4;
+tr {
+  position: relative;
+}
+
+tr:hover td {
+  background-color: #f8fafc;
+  color: #111827;
+}
+
+tr:hover td:first-child {
+  box-shadow: inset 4px 0px 0px 0px #0066cc;
+  padding-left: 20px;
 }
 
 /* --- Button Properties --- */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -200,14 +222,15 @@ tr:hover {
 }
 
 /* --- Form Properties --- */
+
 form {
   display: flex;
   flex-direction: row; 
   flex-wrap: wrap;     
   align-items: flex-end; 
   gap: 16px;         
-  visibility: visible;
-  opacity: 1;
+  margin-top: 16px;
+  margin-bottom: 32px;
 }
 
 .form-group {
@@ -216,38 +239,71 @@ form {
   gap: 6px;
 }
 
+form label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 form input,
 form select,
 form textarea {
   display: inline-block;
-  visibility: visible;
   background-color: #ffffff;
-  color: #000000;
-  border: 1px solid #cccccc;
-  padding: 6px;
-  border-radius: 4px;
-  height: 32px; 
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  height: 38px; 
+  font-size: 13.5px;
   box-sizing: border-box;
+  transition: all 0.15s ease;
 }
 
-/* Align buttons inside horizontal line */
+form input:focus,
+form select:focus,
+form textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
 form button.btn {
-  height: 32px;
+  height: 38px;
+  background-color: #10b981;
+  color: #ffffff;
+  border: 1px solid #059669;
+  border-radius: 6px;
+  padding: 0 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
   box-sizing: border-box;
+  transition: background-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+form button.btn:hover {
+  background-color: #059669;
 }
 
 /* --- Form Placeholder and Dropdowns --- */
 
-/* Placeholders */
 form input::placeholder {
-  color: transparent;
-  transition: color 0.2s ease;
-}
-form input:hover::placeholder {
-  color: #a9a9a9;
+  color: #94a3b8;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
-/* Dates (dd/mm/yyyy) */
+form input:hover::placeholder,
+form input:focus::placeholder {
+  opacity: 1;
+}
+
 form input[type="date"]::-webkit-datetime-edit-text,
 form input[type="date"]::-webkit-datetime-edit-month-field,
 form input[type="date"]::-webkit-datetime-edit-day-field,
@@ -255,72 +311,28 @@ form input[type="date"]::-webkit-datetime-edit-year-field {
   color: transparent;
   transition: color 0.2s ease;
 }
+
 form input[type="date"]:hover::-webkit-datetime-edit-text,
 form input[type="date"]:hover::-webkit-datetime-edit-month-field,
 form input[type="date"]:hover::-webkit-datetime-edit-day-field,
-form input[type="date"]:hover::-webkit-datetime-edit-year-field {
-  color: #a9a9a9;
-}
-
-/* Add forms */
-form select:invalid {
-  color: transparent;
-  border-color: #cccccc;
-  background-color: #ffffff;
-  transition: color 0.2s ease, border-color 0.2s ease;
-  background-image: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-form select:invalid:hover {
-  color: #a9a9a9;
-  -webkit-appearance: select;
-  appearance: select;
-}
-
-/* Update forms */
-form select:disabled,
-form input:disabled {
-  color: transparent;      
-  border-color: #cccccc;      
-  background-color: #ffffff;  
-  -webkit-text-fill-color: transparent; 
-  opacity: 1;       
-  transition: color 0.2s ease, -webkit-text-fill-color 0.2s ease;
-  -webkit-appearance: none;
-  appearance: none;
-}
-form select:disabled:hover,
-form input:disabled:hover {
-  color: #a9a9a9;
-  -webkit-text-fill-color: #a9a9a9;
-  -webkit-appearance: select;
-  appearance: select;
-}
-
-/* Solid black when fields are filled */
-form select:valid:not(:disabled) {
-  color: #000000;
-  -webkit-appearance: select;
-  appearance: select;
+form input[type="date"]:hover::-webkit-datetime-edit-year-field,
+form input[type="date"]:focus::-webkit-datetime-edit-text,
+form input[type="date"]:focus::-webkit-datetime-edit-month-field,
+form input[type="date"]:focus::-webkit-datetime-edit-day-field,
+form input[type="date"]:focus::-webkit-datetime-edit-year-field {
+  color: #94a3b8;
 }
 
 form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-text,
 form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-month-field,
 form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-day-field,
 form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-year-field {
-  color: #000000;
-}
-
-/* Dropdown options */
-form select option {
-  color: #000000;
-  background-color: #ffffff;
+  color: #0f172a;
 }
 
 /* --- Homepage - System Architecture Stack --- */
 
-/* Container layout with 4 vertical columns */
+/* Container with 4 vertical columns */
 .tech-stack-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -492,4 +504,26 @@ form select option {
   margin: 4px auto 0 auto;
   font-size: 0.8rem;
   text-align: center;
+}
+
+/* --- System Notice --- */
+
+.system-notice {
+  background-color: #f8fafc;
+  border-left: 4px solid #64748b;
+  padding: 12px 16px;
+  margin: 16px 0 24px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.system-notice p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.system-notice strong {
+  color: #0f172a;
+  font-weight: 600;
 }

@@ -143,6 +143,11 @@ export default function SunglassesPage() {
         </tbody>
       </table>
 
+      <div className="system-notice">
+        <p>
+          <strong>Security Note:</strong> Image uploads are disabled to prevent malicious payloads. </p>
+      </div>
+
       {/* CREATE FORM */}
       <h2>Add Sunglasses</h2>
       <form id="create-sunglasses-form" action={handleCreate}>

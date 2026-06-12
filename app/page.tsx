@@ -13,7 +13,7 @@ export default function HomePage() {
           Sunglasses Management Terminal
         </h1>
         <p className="home-subtitle">
-          Contains dashboard for inventory control, transaction ledgers, and relational entity tracking.
+          FEEL FREE TO MESS AROUND AND EXPLORE THE TABLES!
         </p>
       </header>
       
