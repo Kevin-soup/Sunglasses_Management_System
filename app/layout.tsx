@@ -3,7 +3,8 @@
 'use client'
 
 import React from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link' // 🌟 FIXED: Use Link instead of standard anchor tags
 import { resetDatabase } from '@/actions/database'
 import '@/app/globals.css'
 
@@ -12,7 +13,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
   const pathname = usePathname()
 
   // Native database reset execution line
@@ -22,7 +22,8 @@ export default function RootLayout({
     const result = await resetDatabase()
     if (result.success) {
       alert('Database has been reset!')
-      router.refresh()
+      // 🌟 FIXED FOREVER: Forces active client-side React state arrays to drop stale data and sync
+      window.location.reload()
     } else {
       alert(`The server encountered an error during reset: ${result.error}`)
     }
@@ -74,7 +75,7 @@ export default function RootLayout({
           {/* APPLICATION IDENTITY AND CONTROL STRIP */}
           <div style={{ 
             display: 'flex', 
-            justifyContent: 'between', 
+            justifyContent: 'space-between', // 🌟 FIXED: Fixed layout parsing string typo
             alignItems: 'center', 
             padding: '0 16px 8px 16px' 
           }}>
@@ -105,24 +106,25 @@ export default function RootLayout({
             paddingLeft: '8px', 
             gap: '4px' 
           }}>
-            <a href="/" style={{ ...getTabStyle('/'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
+            {/* 🌟 FIXED: Swapped <a> tags for <Link> tags to utilize Next.js pre-fetching */}
+            <Link href="/" style={{ ...getTabStyle('/'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
               Home
-            </a>
-            <a href="/customers" style={{ ...getTabStyle('/customers'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
+            </Link>
+            <Link href="/customers" style={{ ...getTabStyle('/customers'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
               Customers
-            </a>
-            <a href="/employees" style={{ ...getTabStyle('/employees'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
+            </Link>
+            <Link href="/employees" style={{ ...getTabStyle('/employees'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
               Employees
-            </a>
-            <a href="/invoices" style={{ ...getTabStyle('/invoices'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
+            </Link>
+            <Link href="/invoices" style={{ ...getTabStyle('/invoices'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
               Invoices
-            </a>
-            <a href="/sunglasses" style={{ ...getTabStyle('/sunglasses'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
+            </Link>
+            <Link href="/sunglasses" style={{ ...getTabStyle('/sunglasses'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
               Sunglasses
-            </a>
-            <a href="/invoice_sunglasses" style={{ ...getTabStyle('/invoice_sunglasses'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
+            </Link>
+            <Link href="/invoice_sunglasses" style={{ ...getTabStyle('/invoice_sunglasses'), padding: '8px 20px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px', textDecoration: 'none', fontSize: '13px', transition: 'all 0.15s' }}>
               Invoice Sunglasses
-            </a>
+            </Link>
           </nav>
         </header>
 

@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import {
   getInvoicesTable,
   getCustomersDropdown,
@@ -33,15 +32,14 @@ interface InvoiceRecord {
 }
 
 export default function InvoicesPage() {
-  const router = useRouter()
   
-  // Local state management pipelines
+  // Local state management pipelines.
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([])
   const [customers, setCustomers] = useState<CustomerRecord[]>([])
   const [employees, setEmployees] = useState<EmployeeRecord[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(null)
 
-  // READ: Hydrate list grids and functional lookup dropdown properties on mount
+  // READ: Hydrate list grids and functional lookup dropdown properties on mount.
   async function loadPageData() {
     try {
       const [invoiceRows, customerRows, employeeRows] = await Promise.all([
@@ -61,7 +59,7 @@ export default function InvoicesPage() {
     loadPageData()
   }, [])
 
-  // CREATE: Process insertion requests matching the 3-argument relational schema contract
+  // CREATE: Process insertion requests matching the 3-argument relational schema contract.
   async function handleCreate(formData: FormData) {
     const customerID = parseInt(formData.get('customerID') as string, 10)
     const employeeID = parseInt(formData.get('employeeID') as string, 10)
@@ -72,7 +70,7 @@ export default function InvoicesPage() {
       return
     }
 
-    // 🌟 FIXED: Pass rawDate string directly to avoid client-side timezone corruption
+    // Pass raw string directly to avoid client-side UTC shifts.
     const result = await createInvoice(customerID, employeeID, rawDate)
     
     if (result.success) {
@@ -97,7 +95,7 @@ export default function InvoicesPage() {
       return
     }
 
-    // 🌟 FIXED: Pass rawDate string directly to avoid client-side timezone corruption
+    // Pass raw string directly to avoid client-side UTC shifts
     const result = await updateInvoice(
       selectedInvoice.invoiceID,
       customerID,
@@ -128,18 +126,18 @@ export default function InvoicesPage() {
     }
   }
 
-  // AUTOFILL: Update fields when tracking choice alterations
+  // AUTOFILL: Update fields when tracking choice alterations.
   function handleSelectionChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const id = parseInt(e.target.value, 10)
     const match = invoices.find((inv) => inv.invoiceID === id) || null
     setSelectedInvoice(match)
   }
 
-  // Helper utility to safely extract dates into HTML element inputs
+  // Helper utility to safely extract dates into HTML element inputs.
   function formatDateForInput(dateVal: Date | string | undefined): string {
     if (!dateVal) return ''
     
-    // If it is already a clean YYYY-MM-DD string from an input onChange event
+    // If it is already a clean YYYY-MM-DD string from an input onChange event.
     if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
       return dateVal
     }
@@ -147,7 +145,7 @@ export default function InvoicesPage() {
     const d = new Date(dateVal)
     if (isNaN(d.getTime())) return ''
     
-    // Safely extract localized numbers instead of UTC conversions
+    // Extract localized numbers instead of UTC conversions.
     const year = d.getFullYear()
     const month = String(d.getMonth() + 1).padStart(2, '0')
     const day = String(d.getDate()).padStart(2, '0')

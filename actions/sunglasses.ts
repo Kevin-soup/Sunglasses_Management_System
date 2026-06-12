@@ -7,7 +7,7 @@ import { prisma } from '@/services/prisma'
 /**
  * PROCEDURE: sp_sunglasses_table
  * PURPOSE: Read all sunglass inventory metrics, sorting by primary key.
- * SELECT itemID, itemName, retailPrice, stockQuantity, isListed FROM Sunglasses;
+ * SELECT itemID, itemName, retailPrice, stockQuantity, isListed, imagePath FROM Sunglasses;
  */
 export async function getSunglassesTable() {
   try {
@@ -15,7 +15,7 @@ export async function getSunglassesTable() {
       orderBy: { itemID: 'asc' },
     })
     
-    // 🔥 Convert the Decimal object into a standard plain string for clean network transfers
+    // Convert Decimal into string. Spreading (...item) automatically includes imagePath.
     return records.map(item => ({
       ...item,
       retailPrice: item.retailPrice.toString()
@@ -27,13 +27,14 @@ export async function getSunglassesTable() {
 
 /**
  * PROCEDURE: sp_create_sunglasses
- * PARAMETERS: p_itemName, p_retailPrice, p_stockQuantity, p_isListed
+ * PARAMETERS: p_itemName, p_retailPrice, p_stockQuantity, p_isListed, p_imagePath
  */
 export async function createSunglasses(
   p_itemName: string,
   p_retailPrice: number,
   p_stockQuantity: number,
-  p_isListed: number
+  p_isListed: number,
+  p_imagePath: string | null 
 ) {
   try {
     await prisma.sunglasses.create({
@@ -42,6 +43,7 @@ export async function createSunglasses(
         retailPrice: p_retailPrice,
         stockQuantity: p_stockQuantity,
         isListed: p_isListed,
+        imagePath: p_imagePath, 
       },
     })
     return { success: true, error: null }
@@ -52,14 +54,15 @@ export async function createSunglasses(
 
 /**
  * PROCEDURE: sp_update_sunglasses
- * PARAMETERS: p_itemID, p_itemName, p_retailPrice, p_stockQuantity, p_isListed
+ * PARAMETERS: p_itemID, p_itemName, p_retailPrice, p_stockQuantity, p_isListed, p_imagePath
  */
 export async function updateSunglasses(
   p_itemID: number,
   p_itemName: string,
   p_retailPrice: number,
   p_stockQuantity: number,
-  p_isListed: number
+  p_isListed: number,
+  p_imagePath: string | null 
 ) {
   try {
     await prisma.sunglasses.update({
@@ -69,6 +72,7 @@ export async function updateSunglasses(
         retailPrice: p_retailPrice,
         stockQuantity: p_stockQuantity,
         isListed: p_isListed,
+        imagePath: p_imagePath, 
       },
     })
     return { success: true, error: null }

@@ -15,7 +15,7 @@ export default function CustomersPage() {
   const [data, setData] = useState<CustomerRecord[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null)
 
-  // READ: Hydrate the data grid matrix on mount
+  // READ: Hydrate the data grid matrix on mount.
   async function loadTable() {
     try {
       const records = await getCustomersTable()
@@ -29,7 +29,7 @@ export default function CustomersPage() {
     loadTable()
   }, [])
 
-  // CREATE: Handle insertion submission pipelines
+  // CREATE: Handle insertion submission pipelines.
   async function handleCreate(formData: FormData) {
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
@@ -46,7 +46,7 @@ export default function CustomersPage() {
     }
   }
 
-  // UPDATE: Process changes to active selection records
+  // UPDATE: Process changes to active selection records.
   async function handleUpdate(formData: FormData) {
     if (!selectedCustomer) return
 
@@ -71,7 +71,7 @@ export default function CustomersPage() {
     }
   }
 
-  // AUTOFILL: Dropdown change handler tracking state mutations
+  // AUTOFILL: Dropdown change handler tracking state mutations.
   function handleDropdownChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const cid = parseInt(e.target.value, 10)
     const match = data.find((c) => c.customerID === cid) || null

@@ -53,6 +53,7 @@ model Sunglasses {
   stockQuantity     Int
   isListed          Int                  @default(1) @db.SmallInt
   invoiceSunglasses InvoiceSunglasses[] 
+  imagePath         String?
 
   @@map("Sunglasses")
 }

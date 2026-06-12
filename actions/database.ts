@@ -5,6 +5,7 @@
 import { prisma } from '../services/prisma'
 import { exec } from 'child_process'
 import { promisify } from 'util'
+import { revalidatePath } from 'next/cache' // 🌟 Added cache invalidation utility
 
 const execAsync = promisify(exec)
 
@@ -24,8 +25,11 @@ export async function resetDatabase() {
     })
 
     // Insert original seed data.
-    // This runs seed.ts in its native environment without colliding with Next.js
     await execAsync('npx prisma db seed')
+
+    revalidatePath('/customers')
+    revalidatePath('/employees')
+    revalidatePath('/invoices')
 
     return { success: true, error: null }
   } catch (error: any) {

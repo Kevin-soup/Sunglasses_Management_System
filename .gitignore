@@ -33,6 +33,9 @@ yarn-error.log*
 # env files 
 .env*
 
+# local images
+/public/images/
+
 # vercel
 .vercel
 

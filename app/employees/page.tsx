@@ -15,7 +15,7 @@ export default function EmployeesPage() {
   const [data, setData] = useState<EmployeeRecord[]>([])
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRecord | null>(null)
 
-  // Helper: Formats an incoming date string/object into YYYY-MM-DD for standard HTML input elements
+  // Helper: Formats date into YYYY-MM-DD for HTML input.
   function formatDateForInput(dateInput: string | Date | undefined): string {
     if (!dateInput) return ''
     if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
@@ -29,7 +29,7 @@ export default function EmployeesPage() {
     return `${year}-${month}-${day}`
   }
 
-  // READ: Hydrate the data grid matrix on mount
+  // READ: Hydrate the data grid matrix on mount.
   async function loadTable() {
     try {
       const records = await getEmployeesTable()
@@ -43,7 +43,7 @@ export default function EmployeesPage() {
     loadTable()
   }, [])
 
-  // CREATE: Handle insertion submission pipelines
+  // CREATE: Handle insertion submission pipelines.
   async function handleCreate(formData: FormData) {
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
@@ -55,7 +55,7 @@ export default function EmployeesPage() {
       return
     }
 
-    // 🌟 FIXED: Pass the raw string variable directly to avoid client-side UTC shifts
+    // Pass raw string directly to avoid client-side UTC shifts.
     const result = await createEmployee(firstName, lastName, hireDateString, isActiveNumber)
     if (result.success) {
       await loadTable()
@@ -66,7 +66,7 @@ export default function EmployeesPage() {
     }
   }
 
-  // UPDATE: Process changes to active selection records
+  // UPDATE: Process changes to active selection records.
   async function handleUpdate(formData: FormData) {
     if (!selectedEmployee) return
 
@@ -80,7 +80,7 @@ export default function EmployeesPage() {
       return
     }
 
-    // 🌟 FIXED: Pass the raw string variable directly to avoid client-side UTC shifts
+    // Pass raw string directly to avoid client-side UTC shifts.
     const result = await updateEmployee(
       selectedEmployee.employeeID,
       firstName,
@@ -97,7 +97,7 @@ export default function EmployeesPage() {
     }
   }
 
-  // AUTOFILL: Dropdown change handler tracking state mutations
+  // AUTOFILL: Dropdown change handler tracking state mutations.
   function handleDropdownChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const eid = parseInt(e.target.value, 10)
     const match = data.find((emp) => emp.employeeID === eid) || null
@@ -125,7 +125,6 @@ export default function EmployeesPage() {
               <td>{row.employeeID}</td>
               <td>{row.firstName}</td>
               <td>{row.lastName}</td>
-              {/* 🌟 FIXED: Manually isolates string data to present clean MM/DD/YYYY formats without day slipping */}
               <td>
                 {(() => {
                   const dateStr = typeof row.hireDate === 'string' 

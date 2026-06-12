@@ -9,6 +9,7 @@ interface SunglassesRecord {
   retailPrice: number | string | { toString(): string } 
   stockQuantity: number
   isListed: number
+  imagePath: string | null 
 }
 
 export default function SunglassesPage() {
@@ -41,7 +42,8 @@ export default function SunglassesPage() {
       return
     }
 
-    const result = await createSunglasses(itemName, retailPrice, stockQuantity, isListed)
+    // Pass null as 5th parameter for images.
+    const result = await createSunglasses(itemName, retailPrice, stockQuantity, isListed, null)
     if (result.success) {
       loadTable()
       const createForm = document.getElementById('create-sunglasses-form') as HTMLFormElement
@@ -51,7 +53,7 @@ export default function SunglassesPage() {
     }
   }
 
-  // UPDATE: Process changes to active selection records
+  // UPDATE: Process changes to active selection records.
   async function handleUpdate(formData: FormData) {
     if (!selectedItem) return
 
@@ -65,12 +67,14 @@ export default function SunglassesPage() {
       return
     }
 
+    // Preserve existing image links by passing as the 6th parameter.
     const result = await updateSunglasses(
       selectedItem.itemID,
       itemName,
       retailPrice,
       stockQuantity,
-      isListed
+      isListed,
+      selectedItem.imagePath
     )
 
     if (result.success) {
@@ -97,6 +101,8 @@ export default function SunglassesPage() {
         <thead>
           <tr>
             <th>Item ID</th>
+            {/* 🌟 COLUMN WIDTH BALANCED FOR LARGER ASSETS */}
+            <th style={{ width: '150px', textAlign: 'center' }}>Image</th>
             <th>Item Name</th>
             <th>Retail Price</th>
             <th>Stock Quantity</th>
@@ -107,6 +113,27 @@ export default function SunglassesPage() {
           {data.map((row) => (
             <tr key={row.itemID}>
               <td>{row.itemID}</td>
+              
+              {/* IMAGE CONTAINER */}
+              <td style={{ textAlign: 'center' }}>
+                {row.imagePath ? (
+                  <img 
+                    src={row.imagePath} 
+                    alt={row.itemName} 
+                    style={{ 
+                      width: '400px',        
+                      height: '80px',        
+                      borderRadius: '10px', 
+                      objectFit: 'contain',  
+                      display: 'block', 
+                      margin: '0 auto' 
+                    }} 
+                  />
+                ) : (
+                  <span style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' }}>None</span>
+                )}
+              </td>
+
               <td>{row.itemName}</td>
               <td>{Number(row.retailPrice).toFixed(2)}</td>
               <td>{row.stockQuantity}</td>
@@ -213,12 +240,10 @@ export default function SunglassesPage() {
           <select 
             name="isListed" 
             id="update_isListed"
-            /* 🌟 Drop back to an empty string when null so the :invalid CSS rule catches it */
             value={selectedItem !== null ? String(selectedItem.isListed) : ''}
             onChange={(e) => setSelectedItem(prev => prev ? { ...prev, isListed: parseInt(e.target.value, 10) } : null)}
             required
           >
-            {/* 🌟 Placeholder option that renders faded when no selection is loaded */}
             <option value="" disabled>&nbsp;</option>
             <option value="1">Yes</option>
             <option value="0">No</option>

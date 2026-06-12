@@ -5,17 +5,28 @@ import PrismaClientPkg from '@prisma/client/index.js'
 // Create pool for database connection.
 const pool = new Pool({ connectionString: process.env.DIRECT_URL })
 
-// Add adapter into the Prisma constructor.
+// Add adapter to Prisma constructor.
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClientPkg.PrismaClient({ adapter })
 
+// Path to public Supabase bucket.
+const supabaseUrl = process.env.SUPABASE_URL
+const bucketUrl = `${supabaseUrl}/storage/v1/object/public/images`
+
 export async function main() {
-  // Use lowercase properties to match the generated Prisma client keys
+  // Lowercase properties to match Prisma keys.
   await prisma.invoiceSunglasses.deleteMany()
   await prisma.invoices.deleteMany()
   await prisma.sunglasses.deleteMany()
   await prisma.employees.deleteMany()
   await prisma.customers.deleteMany()
+
+  // Reset all auto increment sequences back to 1.
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "InvoiceSunglasses" RESTART IDENTITY CASCADE;`)
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Invoices" RESTART IDENTITY CASCADE;`)
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Sunglasses" RESTART IDENTITY CASCADE;`)
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Employees" RESTART IDENTITY CASCADE;`)
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Customers" RESTART IDENTITY CASCADE;`)
 
   await prisma.customers.createMany({
     data: [
@@ -40,13 +51,13 @@ export async function main() {
 
   await prisma.sunglasses.createMany({
     data: [
-      { itemName: 'Oakley', retailPrice: 179.99, stockQuantity: 0, isListed: 0 },
-      { itemName: 'Rayban', retailPrice: 129.99, stockQuantity: 12, isListed: 1 },
-      { itemName: 'Aviator', retailPrice: 159.99, stockQuantity: 8, isListed: 1 },
-      { itemName: 'Wayfarer', retailPrice: 135.99, stockQuantity: 6, isListed: 1 },
-      { itemName: 'Retro Square', retailPrice: 100.99, stockQuantity: 7, isListed: 1 },
-      { itemName: 'Titanium Elite', retailPrice: 299.99, stockQuantity: 10, isListed: 1 },
-      { itemName: 'ClownGlasses', retailPrice: 80.00, stockQuantity: 5, isListed: 1 },
+      { itemName: 'Round', retailPrice: 179.99, stockQuantity: 0, isListed: 0, imagePath: `${bucketUrl}/round.png` },
+      { itemName: 'Wayfarer', retailPrice: 129.99, stockQuantity: 12, isListed: 1, imagePath: `${bucketUrl}/wayfarer.png` },
+      { itemName: 'Aviator', retailPrice: 159.99, stockQuantity: 8, isListed: 1, imagePath: `${bucketUrl}/aviator.png` },
+      { itemName: 'Athletic', retailPrice: 135.99, stockQuantity: 6, isListed: 1, imagePath: `${bucketUrl}/athletic.png` },
+      { itemName: 'Cat Eye', retailPrice: 100.99, stockQuantity: 7, isListed: 1, imagePath: `${bucketUrl}/cateye.png` },
+      { itemName: 'Square', retailPrice: 299.99, stockQuantity: 10, isListed: 1, imagePath: `${bucketUrl}/square.png` },
+      { itemName: 'ClownGlasses', retailPrice: 80.00, stockQuantity: 5, isListed: 1, imagePath: `${bucketUrl}/clown_sunglasses.png` },
     ],
   })
 

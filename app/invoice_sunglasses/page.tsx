@@ -46,7 +46,7 @@ export default function InvoiceSunglassesPage() {
   const [sunglasses, setSunglasses] = useState<SunglassesDropdownRecord[]>([])
   const [selectedLine, setSelectedLine] = useState<LineItemRecord | null>(null)
 
-  // READ: Hydrate relationship data grid and foreign drop lookups on mount
+  // READ: Hydrate relationship data grid and foreign drop lookups on mount.
   async function loadPageData() {
     try {
       const [tableRecords, invoiceRecords, productRecords] = await Promise.all([
@@ -66,7 +66,7 @@ export default function InvoiceSunglassesPage() {
     loadPageData()
   }, [])
 
-  // CREATE: Handle intersection line insertion submission pipelines
+  // CREATE: Handle intersection insertion submission pipelines.
   async function handleCreate(formData: FormData) {
     const invoiceID = parseInt(formData.get('invoiceID') as string, 10)
     const itemID = parseInt(formData.get('itemID') as string, 10)
@@ -87,7 +87,7 @@ export default function InvoiceSunglassesPage() {
     }
   }
 
-  // UPDATE: Process modifications to existing intersection pairs
+  // UPDATE: Process modifications to existing intersection pairs.
   async function handleUpdate(formData: FormData) {
     if (!selectedLine) return
 
@@ -108,7 +108,7 @@ export default function InvoiceSunglassesPage() {
     }
   }
 
-  // DELETE: Safely drop record line and restore item stock allocation
+  // DELETE: Drop record and restore item stock.
   async function handleDelete(invoiceItemID: number) {
     if (!confirm('Are you sure you want to remove this line item? Stock quantities will be adjusted.')) return
 
@@ -123,7 +123,7 @@ export default function InvoiceSunglassesPage() {
     }
   }
 
-  // AUTOFILL: Dropdown selection change tracker
+  // AUTOFILL: Dropdown selection change tracker.
   function handleDropdownChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const id = parseInt(e.target.value, 10)
     const match = data.find((line) => line.invoiceItemID === id) || null
