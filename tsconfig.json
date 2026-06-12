@@ -1,3 +1,4 @@
+// TypeScript compiler configurations.
 {
   "compilerOptions": {
     "target": "ES2017",

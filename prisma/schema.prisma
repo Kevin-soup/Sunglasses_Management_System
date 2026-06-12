@@ -8,58 +8,63 @@ datasource db {
   provider  = "postgresql"
 }
 
-model Customer {
-  customerID  Int       @id @default(autoincrement())
-  firstName   String    @db.VarChar(100)
-  lastName    String    @db.VarChar(100)
-  email       String?   @db.VarChar(100)
-  phoneNumber String    @db.VarChar(20)
-  invoices    Invoice[]
+// --------------  CUSTOMERS  ------------------  
+model Customers {
+  customerID  Int         @id @default(autoincrement())
+  firstName   String      @db.VarChar(100)
+  lastName    String      @db.VarChar(100)
+  email       String?     @db.VarChar(100)
+  phoneNumber String      @db.VarChar(20)
+  invoices    Invoices[]
 
   @@map("Customers")
 }
 
-model Employee {
-  employeeID Int       @id @default(autoincrement())
-  firstName  String    @db.VarChar(100)
-  lastName   String    @db.VarChar(100)
-  hireDate   DateTime  @db.Date
-  isActive   Boolean   @default(true) // Maps natively from tinyint(1)
-  invoices   Invoice[]
+// --------------  EMPLOYEES  -------------------  
+model Employees {
+  employeeID Int         @id @default(autoincrement())
+  firstName  String      @db.VarChar(100)
+  lastName   String      @db.VarChar(100)
+  hireDate   DateTime    @db.Date
+  isActive   Int         @default(1) @db.SmallInt
+  invoices   Invoices[] 
 
   @@map("Employees")
 }
 
-model Invoice {
-  invoiceID         Int                 @id @default(autoincrement())
+// --------------  INVOICES  -------------------  
+model Invoices {
+  invoiceID         Int                  @id @default(autoincrement())
   customerID        Int
   employeeID        Int
-  invoiceDate       DateTime            @db.Date
-  customer          Customer            @relation(fields: [customerID], references: [customerID], onDelete: Restrict)
-  employee          Employee            @relation(fields: [employeeID], references: [employeeID], onDelete: Restrict)
+  invoiceDate       DateTime             @db.Date
+  customers         Customers           @relation(fields: [customerID], references: [customerID], onDelete: Restrict)
+  employees         Employees           @relation(fields: [employeeID], references: [employeeID], onDelete: Restrict) 
   invoiceSunglasses InvoiceSunglasses[]
 
   @@map("Invoices")
 }
 
+// ------------  SUNGLASSES  -------------------  
 model Sunglasses {
-  itemID            Int                 @id @default(autoincrement())
-  itemName          String              @db.VarChar(100)
-  retailPrice       Decimal             @default(0.00) @db.Decimal(5, 2)
+  itemID            Int                  @id @default(autoincrement())
+  itemName          String               @db.VarChar(100)
+  retailPrice       Decimal              @default(0.00) @db.Decimal(5, 2)
   stockQuantity     Int
-  isListed          Boolean             @default(true)
-  invoiceSunglasses InvoiceSunglasses[]
+  isListed          Int                  @default(1) @db.SmallInt
+  invoiceSunglasses InvoiceSunglasses[] 
 
   @@map("Sunglasses")
 }
 
+// ---------  INVOICESUNGLASSES  ---------------  
 model InvoiceSunglasses {
-  invoiceItemID Int        @id @default(autoincrement())
+  invoiceItemID Int         @id @default(autoincrement())
   invoiceID     Int
   itemID        Int
   quantity      Int
-  invoice       Invoice    @relation(fields: [invoiceID], references: [invoiceID], onDelete: Cascade)
-  sunglasses    Sunglasses @relation(fields: [itemID], references: [itemID], onDelete: Restrict)
+  invoices      Invoices   @relation(fields: [invoiceID], references: [invoiceID], onDelete: Cascade)
+  sunglasses    Sunglasses @relation(fields: [itemID], references: [itemID], onDelete: Restrict) 
 
   @@unique([invoiceID, itemID], map: "unique_invoiceID_sunglassesID")
   @@map("InvoiceSunglasses")
