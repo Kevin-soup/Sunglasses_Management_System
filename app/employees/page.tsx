@@ -184,12 +184,25 @@ export default function EmployeesPage() {
 
         <div className="form-group">
           <label htmlFor="create_hireDate">Hire Date:</label>
-          <input type="date" name="hireDate" id="create_hireDate" required />
+          <input 
+            type="date" 
+            name="hireDate" 
+            id="create_hireDate" 
+            placeholder=""
+            data-hover-reveal="true" 
+            required 
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="create_terminationDate">Termination Date:</label>
-          <input type="date" name="terminationDate" id="create_terminationDate" />
+          <input 
+            type="date" 
+            name="terminationDate" 
+            id="create_terminationDate" 
+            placeholder=""
+            data-hover-reveal="true" 
+          />
         </div>
 
         <div className="form-group">
@@ -262,6 +275,8 @@ export default function EmployeesPage() {
             id="update_hireDate"
             value={selectedEmployee ? formatDateForInput(selectedEmployee.hireDate) : ''} 
             onChange={(e) => setSelectedEmployee(prev => prev ? { ...prev, hireDate: e.target.value } : null)} 
+            placeholder=""
+            data-hover-reveal="true"
             required 
           />
         </div>
@@ -274,6 +289,8 @@ export default function EmployeesPage() {
             id="update_terminationDate"
             value={selectedEmployee?.terminationDate ? formatDateForInput(selectedEmployee.terminationDate) : ''} 
             onChange={(e) => setSelectedEmployee(prev => prev ? { ...prev, terminationDate: e.target.value || null } : null)} 
+            placeholder=""
+            data-hover-reveal="true"
           />
         </div>
         

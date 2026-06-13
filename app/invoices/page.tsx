@@ -249,7 +249,14 @@ export default function InvoicesPage() {
 
         <div className="form-group">
           <label htmlFor="create_date_input">Invoice Date:</label>
-          <input type="date" name="invoiceDate" id="create_date_input" required />
+          <input 
+            type="date" 
+            name="invoiceDate" 
+            id="create_date_input" 
+            placeholder="" 
+            data-hover-reveal="true" 
+            required 
+          />
         </div>
 
         <button type="submit" className="btn btn-save">
@@ -323,6 +330,8 @@ export default function InvoicesPage() {
             id="update_date_input"
             value={selectedInvoice ? formatDateForInput(selectedInvoice.invoiceDate) : ''}
             onChange={(e) => setSelectedInvoice(prev => prev ? { ...prev, invoiceDate: e.target.value } : null)}
+            placeholder=""
+            data-hover-reveal="true"
             required
           />
         </div>

@@ -97,7 +97,7 @@ export default function CustomersPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Customers</h1>
+      <h1>`Customers`</h1>
 
       {/* READ TABLE */}
       <table border={1} cellPadding={8} style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
@@ -138,7 +138,13 @@ export default function CustomersPage() {
 
         <div className="form-group">
           <label htmlFor="create_email">Email:</label>
-          <input type="text" name="email" id="create_email" placeholder="sample@example.com" />
+          <input 
+            type="text" 
+            name="email" 
+            id="create_email" 
+            placeholder="sample@example.com" 
+            data-hover-reveal="true"
+          />
         </div>
 
         <div className="form-group">
@@ -149,6 +155,7 @@ export default function CustomersPage() {
             id="create_phoneNumber" 
             placeholder="123-456-7890" 
             pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" 
+            data-hover-reveal="true"
             required 
           />
         </div>
@@ -215,6 +222,7 @@ export default function CustomersPage() {
             value={selectedCustomer?.email || ''} 
             onChange={(e) => setSelectedCustomer(prev => prev ? { ...prev, email: e.target.value } : null)} 
             placeholder="sample@example.com"
+            data-hover-reveal="true"
           />
         </div>
 
@@ -228,6 +236,7 @@ export default function CustomersPage() {
             onChange={(e) => setSelectedCustomer(prev => prev ? { ...prev, phoneNumber: e.target.value } : null)} 
             placeholder="123-456-7890"
             pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+            data-hover-reveal="true"
             required 
           />
         </div>

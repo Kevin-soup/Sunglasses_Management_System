@@ -224,6 +224,7 @@ tr:hover td:first-child {
   padding: 6px 12px;
 }
 
+
 .btn-save:hover {
   background-color: #449d44;
   border-color: #398439;
@@ -299,43 +300,61 @@ form button.btn:hover {
   background-color: #059669;
 }
 
-/* --- Form Placeholder and Dropdowns --- */
+/* --- Form Hover to Reveal Placeholder--- */
 
-form input::placeholder {
-  color: #94a3b8;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-form input:hover::placeholder,
-form input:focus::placeholder {
-  opacity: 1;
-}
-
-form input[type="date"]::-webkit-datetime-edit-text,
-form input[type="date"]::-webkit-datetime-edit-month-field,
-form input[type="date"]::-webkit-datetime-edit-day-field,
-form input[type="date"]::-webkit-datetime-edit-year-field {
+/* Invisible Base State */
+form input[data-hover-reveal="true"] {
   color: transparent;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
-form input[type="date"]:hover::-webkit-datetime-edit-text,
-form input[type="date"]:hover::-webkit-datetime-edit-month-field,
-form input[type="date"]:hover::-webkit-datetime-edit-day-field,
-form input[type="date"]:hover::-webkit-datetime-edit-year-field,
-form input[type="date"]:focus::-webkit-datetime-edit-text,
-form input[type="date"]:focus::-webkit-datetime-edit-month-field,
-form input[type="date"]:focus::-webkit-datetime-edit-day-field,
-form input[type="date"]:focus::-webkit-datetime-edit-year-field {
-  color: #94a3b8;
+form input[data-hover-reveal="true"]::placeholder {
+  color: transparent;
+  transition: color 0.15s ease;
 }
 
-form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-text,
-form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-month-field,
-form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-day-field,
-form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-year-field {
-  color: #0f172a;
+/* Date components */
+form input[type="date"][data-hover-reveal="true"]::-webkit-datetime-edit-text,
+form input[type="date"][data-hover-reveal="true"]::-webkit-datetime-edit-month-field,
+form input[type="date"][data-hover-reveal="true"]::-webkit-datetime-edit-day-field,
+form input[type="date"][data-hover-reveal="true"]::-webkit-datetime-edit-year-field {
+  color: transparent;
+  transition: color 0.15s ease;
+}
+
+form input[type="date"][data-hover-reveal="true"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+form input[type="text"][data-hover-reveal="true"]:hover,
+form input[type="text"][data-hover-reveal="true"]:focus,
+form input[type="date"][data-hover-reveal="true"]:hover,
+form input[type="date"][data-hover-reveal="true"]:focus {
+  color: #94a3b8; 
+}
+
+form input[data-hover-reveal="true"]:hover::placeholder,
+form input[data-hover-reveal="true"]:focus::placeholder {
+  color: #94a3b8; 
+}
+
+/* Native Date field internal text strings layout sync */
+form input[type="date"][data-hover-reveal="true"]:hover::-webkit-datetime-edit-text,
+form input[type="date"][data-hover-reveal="true"]:hover::-webkit-datetime-edit-month-field,
+form input[type="date"][data-hover-reveal="true"]:hover::-webkit-datetime-edit-day-field,
+form input[type="date"][data-hover-reveal="true"]:hover::-webkit-datetime-edit-year-field,
+form input[type="date"][data-hover-reveal="true"]:focus::-webkit-datetime-edit-text,
+form input[type="date"][data-hover-reveal="true"]:focus::-webkit-datetime-edit-month-field,
+form input[type="date"][data-hover-reveal="true"]:focus::-webkit-datetime-edit-day-field,
+form input[type="date"][data-hover-reveal="true"]:focus::-webkit-datetime-edit-year-field {
+  color: #94a3b8; 
+}
+
+/* Calendar dropdown button indicator transparency sync */
+form input[type="date"][data-hover-reveal="true"]:hover::-webkit-calendar-picker-indicator,
+form input[type="date"][data-hover-reveal="true"]:focus::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
 }
 
 /* --- Homepage - System Architecture Stack --- */
@@ -593,6 +612,69 @@ form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-year-field {
   font-size: 11px;
   color: #888;
   font-style: italic;
+}
+
+/* Database Rollback Dropdown  */
+
+.version-dropdown-container {
+  position: relative;
+  inline-size: max-content;
+}
+
+.version-trigger-btn {
+  padding: 4px 12px;
+  background-color: #27272a;
+  color: #ffffff;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #3f3f46;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.version-trigger-btn:hover {
+  background-color: #3f3f46;
+  border-color: #52525b;
+}
+
+.version-menu-popup {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-end: 0; 
+  margin-top: 8px;
+  inline-size: 240px;
+  background-color: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  padding: 4px 0;
+}
+
+.version-no-backups {
+  display: block;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #71717a;
+}
+
+.version-item-link {
+  display: block;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #e4e4e7;
+  text-decoration: none;
+  border-bottom: 1px solid #27272a;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.version-item-link:last-child {
+  border-bottom: none;
+}
+
+.version-item-link:hover {
+  background-color: #27272a;
+  color: #ffffff;
 }
 
 /* ==========================================================================

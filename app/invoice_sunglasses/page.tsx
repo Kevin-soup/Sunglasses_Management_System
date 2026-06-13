@@ -278,14 +278,23 @@ export default function InvoiceSunglassesPage() {
 
         <div className="form-group">
           <label htmlFor="update_quantity">Quantity:</label>
-          <input 
-            type="number" 
-            min={1} 
-            name="quantity" 
+          <input
+            type="number"
+            min={1}
+            name="quantity"
             id="update_quantity"
-            value={selectedLine !== null ? selectedLine.quantity : ''}
-            onChange={(e) => setSelectedLine(prev => prev ? { ...prev, quantity: parseInt(e.target.value, 10) || 0 } : null)}
-            required 
+            value={selectedLine?.quantity ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSelectedLine(prev =>
+                prev
+                  ? {
+                      ...prev,
+                      quantity: Number(e.target.value)
+                    }
+                  : null
+              )
+            }
+            required
           />
         </div>
 
