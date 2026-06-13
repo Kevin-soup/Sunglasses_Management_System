@@ -2,9 +2,41 @@
 
 ## Overview
 
-A full stack product management application designed to track customers, employees, inventory, and invoices. This project showcases data modeling integrity, relational constraints, and production pipeline execution.
+A full stack product management application designed to track customers, employees, inventory, and invoices. 
+This project showcases data modeling integrity, relational constraints, and production pipeline execution.
 
-**Live Application:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
+The system implements automated backup mechanics, live health monitoring, and defensive cascade handling. 
+Built for high volume operations, it ensures zero transaction loss and precise data consistency across the schema.
+
+
+**LIVE APPLICATION:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
+
+### System Features
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top">
+
+#### 🔄 Infrastructure & Recovery
+* **Database Reset**
+  Archives active tables to a snapshot file before running a fresh seed.
+* **Database Rollback**
+  Holds a rolling history of the last 5 operational states.
+* **Health Tracking**
+  Renders a live UI badge displaying active connection stability.
+
+</td>
+<td width="50%" valign="top">
+
+#### ⚡ Operations & Intake
+* **Validation Forms**
+  Enforces strict type-checked UI fields for secure row creation.
+* **Inline Edits**
+  Validates and processes atomic updates to data records instantly.
+
+</td>
+</tr>
+</table>
 
 
 ## System Architecture  
@@ -19,36 +51,27 @@ A full stack product management application designed to track customers, employe
 | **Hosting** | Vercel Cloud |
 
 
-## Features
+## Database Schema
 
-### Database Reset
-* Backs up active tables to a snapshot file before initializing a clean, seeded state.
-
-### Database Rollback
-* Captures and maintains the last 5 operational database states for data recoveries.
-
-### Health Tracking
-* Visual UI badge displaying active database connection stability in real time.
-
-### Validation Forms
-* Strict type checked entry points for database tables.
+![Schema Diagram](public/assets/schema_diagram.png)
 
 
 ## Relational Logic
 
-### Schema Structure
-* **Core Tables**: `Customers`, `Employees`, `Invoices`, and `Sunglasses`.
-* **Junction Table**: `InvoiceSunglasses` handles the many to many relationship between sales orders and physical items.
+### Core Tables
+* `Customers`, `Employees`, `Invoices`, and `Sunglasses` form the base schema.
 
-### Data Constraints
-* **Idempotent Items**: A composite unique constraint on `InvoiceSunglasses([invoiceID, itemID])` halts accidental duplication within a single sales invoice.
-* **Audit Protection**: `onDelete: Restrict` prevents wiping active customer or employee records that are linked to transaction histories.
-* **Automated Cascade**: `onDelete: Cascade` purges transactional items instantly if the parent invoice is removed, preventing orphaned records.
+### Junction Table
+* `InvoiceSunglasses` manages the many-to-many relationship between sales orders and inventory.
 
+### Idempotent Items
+* A composite unique constraint on `InvoiceSunglasses([invoiceID, itemID])` halts product duplication within a single sales invoice.
 
-## Database Schema
+### Audit Protection
+* `onDelete: Restrict` blocks the deletion of customer or employee records linked to historical transaction records.
 
-![Schema Diagram](public/assets/schema_diagram.png)
+### Automated Cascade
+* `onDelete: Cascade` purges line items instantly if the parent invoice is removed to prevent orphan database rows.
 
 
 ## Citations
