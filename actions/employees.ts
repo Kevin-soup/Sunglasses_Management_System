@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache'
 /**
  * PROCEDURE: sp_employees_table
  * PURPOSE: Read all employee attributes, sorting by primary key.
- * SELECT employeeID, firstName, lastName, DATE_FORMAT(hireDate, '%Y-%m-%d') AS hireDate, isActive FROM Employees;
+ * SELECT employeeID, firstName, lastName, DATE_FORMAT(hireDate, '%Y-%m-%d') AS hireDate, isActive, DATE_FORMAT(terminationDate, '%Y-%m-%d') AS terminationDate FROM Employees;
  */
 export async function getEmployeesTable() {
   try {
@@ -22,17 +22,19 @@ export async function getEmployeesTable() {
 
 /**
  * PROCEDURE: sp_create_employee
- * PARAMETERS: p_firstName, p_lastName, p_hireDateStr, p_isActive
- * INSERT INTO Employees (firstName, lastName, hireDate, isActive) VALUES (:firstName_input, :lastName_input, :hireDate_input, :isActive_input);
+ * PARAMETERS: p_firstName, p_lastName, p_hireDateStr, p_isActive, p_terminationDateStr
+ * INSERT INTO Employees (firstName, lastName, hireDate, isActive, terminationDate) VALUES (:firstName_input, :lastName_input, :hireDate_input, :isActive_input, :terminationDate_input);
  */
 export async function createEmployee(
   p_firstName: string,
   p_lastName: string,
   p_hireDateStr: string, 
-  p_isActive: number
+  p_isActive: number,
+  p_terminationDateStr: string | null // Accepts null for active employees
 ) {
   try {
     const hireDate = new Date(p_hireDateStr + 'T00:00:00')
+    const terminationDate = p_terminationDateStr ? new Date(p_terminationDateStr + 'T00:00:00') : null
 
     await prisma.employees.create({
       data: {
@@ -40,6 +42,7 @@ export async function createEmployee(
         lastName: p_lastName,
         hireDate: hireDate,
         isActive: p_isActive,
+        terminationDate: terminationDate,
       },
     })
 
@@ -52,18 +55,20 @@ export async function createEmployee(
 
 /**
  * PROCEDURE: sp_update_employee
- * PARAMETERS: p_employeeID, p_firstName, p_lastName, p_hireDateStr, p_isActive
- * UPDATE Employees SET firstName = :firstName_input, lastName = :lastName_input, hireDate = :hireDate_input, isActive = :isActive_input WHERE employeeID = :employeeID_selected_from_employees_page;
+ * PARAMETERS: p_employeeID, p_firstName, p_lastName, p_hireDateStr, p_isActive, p_terminationDateStr
+ * UPDATE Employees SET firstName = :firstName_input, lastName = :lastName_input, hireDate = :hireDate_input, isActive = :isActive_input, terminationDate = :terminationDate_input WHERE employeeID = :employeeID_selected_from_employees_page;
  */
 export async function updateEmployee(
   p_employeeID: number,
   p_firstName: string,
   p_lastName: string,
   p_hireDateStr: string, 
-  p_isActive: number
+  p_isActive: number,
+  p_terminationDateStr: string | null // Accepts null if removing a termination date
 ) {
   try {
     const hireDate = new Date(p_hireDateStr + 'T00:00:00')
+    const terminationDate = p_terminationDateStr ? new Date(p_terminationDateStr + 'T00:00:00') : null
 
     await prisma.employees.update({
       where: { employeeID: p_employeeID },
@@ -72,6 +77,7 @@ export async function updateEmployee(
         lastName: p_lastName,
         hireDate: hireDate,
         isActive: p_isActive,
+        terminationDate: terminationDate,
       },
     })
 

@@ -9,6 +9,7 @@ interface EmployeeRecord {
   lastName: string
   hireDate: string | Date
   isActive: number
+  terminationDate: string | Date | null
 }
 
 export default function EmployeesPage() {
@@ -16,7 +17,7 @@ export default function EmployeesPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRecord | null>(null)
 
   // Helper: Formats date into YYYY-MM-DD for HTML input.
-  function formatDateForInput(dateInput: string | Date | undefined): string {
+  function formatDateForInput(dateInput: string | Date | undefined | null): string {
     if (!dateInput) return ''
     if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
       return dateInput
@@ -66,13 +67,14 @@ export default function EmployeesPage() {
     const lastName = formData.get('lastName') as string
     const hireDateString = formData.get('hireDate') as string
     const isActiveNumber = parseInt(formData.get('isActive') as string, 10)
+    const terminationDateString = (formData.get('terminationDate') as string) || null
 
     if (!hireDateString) {
       alert('A valid hiring date metric is required.')
       return
     }
 
-    const result = await createEmployee(firstName, lastName, hireDateString, isActiveNumber)
+    const result = await createEmployee(firstName, lastName, hireDateString, isActiveNumber, terminationDateString)
     if (result.success) {
       await refreshTable()
       const createForm = document.getElementById('create-employee-form') as HTMLFormElement
@@ -90,6 +92,7 @@ export default function EmployeesPage() {
     const lastName = formData.get('lastName') as string
     const hireDateString = formData.get('hireDate') as string
     const isActiveNumber = parseInt(formData.get('isActive') as string, 10)
+    const terminationDateString = (formData.get('terminationDate') as string) || null
 
     if (!hireDateString) {
       alert('A valid hiring date metric is required.')
@@ -101,7 +104,8 @@ export default function EmployeesPage() {
       firstName,
       lastName,
       hireDateString,
-      isActiveNumber
+      isActiveNumber,
+      terminationDateString
     )
 
     if (result.success) {
@@ -131,6 +135,7 @@ export default function EmployeesPage() {
             <th>First Name</th>
             <th>Last Name</th>
             <th>Hire Date</th>
+            <th>Termination Date</th>
             <th>Active</th>
           </tr>
         </thead>
@@ -148,6 +153,15 @@ export default function EmployeesPage() {
                   const [year, month, day] = dateStr.split('-')
                   return `${month}/${day}/${year}`
                 })()}
+              </td>
+              <td>
+                {row.terminationDate ? (() => {
+                  const dateStr = typeof row.terminationDate === 'string' 
+                    ? row.terminationDate.split('T')[0] 
+                    : new Date(row.terminationDate).toISOString().split('T')[0]
+                  const [year, month, day] = dateStr.split('-')
+                  return `${month}/${day}/${year}`
+                })() : ''}
               </td>
               <td>{row.isActive === 1 ? 'Yes' : 'No'}</td>
             </tr>
@@ -171,6 +185,11 @@ export default function EmployeesPage() {
         <div className="form-group">
           <label htmlFor="create_hireDate">Hire Date:</label>
           <input type="date" name="hireDate" id="create_hireDate" required />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="create_terminationDate">Termination Date:</label>
+          <input type="date" name="terminationDate" id="create_terminationDate" />
         </div>
 
         <div className="form-group">
@@ -247,6 +266,17 @@ export default function EmployeesPage() {
           />
         </div>
 
+        <div className="form-group">
+          <label htmlFor="update_terminationDate">Termination Date:</label>
+          <input 
+            type="date" 
+            name="terminationDate" 
+            id="update_terminationDate"
+            value={selectedEmployee?.terminationDate ? formatDateForInput(selectedEmployee.terminationDate) : ''} 
+            onChange={(e) => setSelectedEmployee(prev => prev ? { ...prev, terminationDate: e.target.value || null } : null)} 
+          />
+        </div>
+        
         <div className="form-group">
           <label htmlFor="update_isActive">Active:</label>
           <select 

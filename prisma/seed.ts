@@ -39,13 +39,13 @@ export async function main() {
 
   await prisma.employees.createMany({
     data: [
-      { firstName: 'Steve', lastName: 'Adams', hireDate: new Date('2022-03-23'), isActive: 0 },
-      { firstName: 'Jonny', lastName: 'Patel', hireDate: new Date('2023-01-15'), isActive: 1 },
-      { firstName: 'Jordan', lastName: 'Guy', hireDate: new Date('2024-06-01'), isActive: 1 },
-      { firstName: 'Sasha', lastName: 'Reed', hireDate: new Date('2025-11-20'), isActive: 1 },
-    ],
+      { firstName: 'Steve', lastName: 'Adams', hireDate: new Date('2022-03-23'), isActive: 0, terminationDate: new Date('2024-05-10') },
+      { firstName: 'Jonny', lastName: 'Patel', hireDate: new Date('2023-01-15'), isActive: 1, terminationDate: null },
+      { firstName: 'Jordan', lastName: 'Guy', hireDate: new Date('2024-06-01'), isActive: 1, terminationDate: null },
+      { firstName: 'Sasha', lastName: 'Reed', hireDate: new Date('2025-11-20'), isActive: 1, terminationDate: null }
+    ]
   })
-
+  
   const dbCustomers = await prisma.customers.findMany({ orderBy: { customerID: 'asc' } })
   const dbEmployees = await prisma.employees.findMany({ orderBy: { employeeID: 'asc' } })
 

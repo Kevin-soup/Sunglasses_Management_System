@@ -27,6 +27,7 @@ model Employees {
   lastName   String      @db.VarChar(100)
   hireDate   DateTime    @db.Date
   isActive   Int         @default(1) @db.SmallInt
+  terminationDate DateTime?  @db.Date 
   invoices   Invoices[] 
 
   @@map("Employees")
