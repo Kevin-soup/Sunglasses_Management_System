@@ -4,99 +4,49 @@
 
 A full stack product management application designed to track customers, employees, inventory, and invoices. This project showcases data modeling integrity, relational constraints, and production pipeline execution.
 
-## Hosted URL
+**Live Application:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
 
-🚀 **Live Application:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
-
----
-
-## Features
-
-### Lifecycle & Backup Management
-* **Instant Database Reset**: Saves a snapshot of current schema state before creating a fresh default database.
-* **Database Rollback**: System maintains a historical log of the recent 5 database snapshots. This provides an automated recovery path to previous points in time.
-* **Live Connection Badge**: A real time status badge that gives operators an instant confirmation of database operational health.
-
-### Data Capture & Operations
-* **Creation Forms**: Integrated forms for adding new database transactions.
-* **Update Actions**: Pre-validated modification forms that handle editing table attributes.
-
----
 
 ## System Architecture  
 
-* **Frontend Framework**: Next.js
-* **Styling**: Tailwind CSS
-* **Backend Runtime**: Next.js API Routes
-* **Database Engine**: PostgreSQL (Neon)
-* **Object Relational Mapper**: Prisma ORM
-* **Asset Storage**: Supabase Storage
-* **Hosting Platform**: Vercel Cloud
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Next.js (React & API Routes) |
+| **Styling** | Tailwind CSS |
+| **Database** | PostgreSQL (Neon) |
+| **ORM** | Prisma |
+| **Storage** | Supabase Objects |
+| **Hosting** | Vercel Cloud |
 
----
+
+## Features
+
+### State Recovery & Lifecycle
+* **Instant Reset**: Backs up active tables to a snapshot file before initializing a clean, seeded state.
+* **Rolling Rollback**: Captures and maintains the last 5 operational database states for point in time recovery.
+* **Health Tracking**: Visual UI badge displaying active database connection stability.
+
+### Data Management
+* **Validation Forms**: Strict type-checked entry points for onboarding personnel, customers, and stock.
+* **Inline Mutation**: Secure operational components handling atomic updates to prices, counts, and status flags.
+
 
 ## Relational Logic
 
-### Core Entities
-* **Customers**: Customer contact information and purchase association.
-* **Employees**: Employee records and hire information.
-* **Invoices**: Purchase records connecting customers and employees.
-* **Sunglasses**: Inventory records including price, stock quantity, and sale status.
-* **InvoiceSunglasses**: Intersection table connecting invoices and sunglasses purchases.
+### Schema Structure
+* **Core Tables**: `Customers`, `Employees`, `Invoices`, and `Sunglasses`.
+* **Junction Table**: `InvoiceSunglasses` handles the many to many relationship between sales orders and physical items.
 
-### Referential Integrity Constraints
-* **Many-to-Many Junction**: `InvoiceSunglasses` table bridges `Invoices` and `Sunglasses`, featuring a composite unique constraint `([invoiceID, itemID])` to prevent duplicate line items within a single order.
-* **Strict Deletion Restrictions**: `onDelete: Restrict` on `Customers` and `Employees` prevents orphan invoices or the accidental loss of historical sales data.
-* **Cascading Purges**: `onDelete: Cascade` on `InvoiceSunglasses` ensures that the removal of an invoice cleanly purges its specific line items without manual cleanup.
+### Data Constraints
+* **Idempotent Items**: A composite unique constraint on `InvoiceSunglasses([invoiceID, itemID])` halts accidental duplication within a single sales invoice.
+* **Audit Protection**: `onDelete: Restrict` prevents wiping active customer or employee records that are linked to transaction histories.
+* **Automated Cascade**: `onDelete: Cascade` purges transactional items instantly if the parent invoice is removed, preventing orphaned records.
 
----
 
 ## Database Schema
 
-```mermaid
-erDiagram
-    Customers ||--o{ Invoices : "places"
-    Employees ||--o{ Invoices : "processes"
-    Invoices ||--|{ InvoiceSunglasses : "contains"
-    Sunglasses ||--o{ InvoiceSunglasses : "included_in"
+![Schema Diagram](/assets/schema_diagram.png)
 
-    Customers {
-        int customerID PK
-        string firstName
-        string lastName
-        string email
-        string phoneNumber
-    }
-    Employees {
-        int employeeID PK
-        string firstName
-        string lastName
-        DateTime hireDate
-        int isActive
-        DateTime terminationDate
-    }
-    Invoices {
-        int invoiceID PK
-        int customerID FK
-        int employeeID FK
-        DateTime invoiceDate
-    }
-    Sunglasses {
-        int itemID PK
-        string itemName
-        decimal retailPrice
-        int stockQuantity
-        int isListed
-        string imagePath
-    }
-    InvoiceSunglasses {
-        int invoiceItemID PK
-        int invoiceID FK
-        int itemID FK
-        int quantity
-    }
-
----
 
 ## Citations
 
