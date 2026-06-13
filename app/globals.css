@@ -79,7 +79,6 @@ form button.btn:active {
   padding: 10px 16px; 
   text-decoration: none; 
   font-size: 13.5px; 
-  transition: all 0.15s ease;
   background: transparent;
   color: #1e293b; 
   font-weight: 500;
@@ -224,7 +223,6 @@ tr:hover td:first-child {
   padding: 6px 12px;
 }
 
-
 .btn-save:hover {
   background-color: #449d44;
   border-color: #398439;
@@ -296,7 +294,7 @@ form {
 .tech-stack-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 28px 16px; /* 28px space between rows */
+  gap: 28px 16px; 
   max-width: 950px;
   margin: 0 auto;
   padding: 10px 0;
@@ -443,7 +441,6 @@ form {
   clear: both;
   width: 100%; 
   text-align: center !important; 
-  
   border-top: 1px solid #e5e7eb;
   padding-top: 30px;
   margin-top: 60px; 
@@ -524,13 +521,11 @@ form {
 
 /* --- Sunglasses Image Cell --- */
 
-/* Container cell constraints */
 .image-cell {
   text-align: center;
   width: 150px;
 }
 
-/* Image element */
 .sunglasses-thumbnail {
   display: block;
   width: 400px;
@@ -540,7 +535,6 @@ form {
   border-radius: 10px;
 }
 
-/* Fallback placeholder text styles */
 .no-image-placeholder {
   font-size: 11px;
   color: #888;
@@ -549,13 +543,11 @@ form {
 
 /* --- Database Rollback Button --- */
 
-/* Container wrap button and popup */
 .version-dropdown-container {
   position: relative;
   display: inline-block;
 }
 
-/* --- Database Rollback Button --- */
 .version-trigger-btn {
   background-color: #0066cc;
   color: #ffffff;
@@ -635,10 +627,70 @@ form {
    ========================================================================== */
    
 @media (max-width: 767px) {
-  /* Box Adjustments */
-  body, .page-container, div[style*="padding: 20px"] {
+  /* Box Adjustments & Canvas Content Optimization */
+  body, 
+  .page-container, 
+  .home-page-container,
+  div[style*="padding: 20px"] {
     padding: 12px !important; 
     box-sizing: border-box;
+    margin: 10px auto !important;
+  }
+
+  .app-main {
+    padding: 12px 8px !important;
+  }
+
+  .app-canvas {
+    padding: 16px !important;
+    min-height: auto !important;
+  }
+
+  /* Structural Global Layout Header Fixes */
+  .control-strip {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 0 16px 12px 16px !important;
+  }
+
+  .control-actions {
+    flex-direction: row-reverse !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  /* Navigation Bar Realignment */
+  .chrome-tab-bar {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    padding-left: 12px !important;
+    gap: 4px !important;
+  }
+
+  .chrome-tab {
+    flex: 1 1 auto !important;
+    text-align: center !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Homepage Systems Stack Overrides */
+  .tech-stack-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px 12px !important;
+  }
+
+  .home-header {
+    margin-bottom: 24px !important;
+  }
+
+  .home-title {
+    font-size: 1.8rem !important;
+  }
+
+  .home-subtitle {
+    font-size: 1rem !important;
   }
 
   /* Structural Form Engine Overrides */
@@ -654,7 +706,7 @@ form {
   .form-group {
     display: flex;
     flex-direction: column; 
-    margin-bottom: 0px; /* Managed by the form flex gap */
+    margin-bottom: 0px; 
     width: 100% !important;
   }
 
@@ -681,11 +733,14 @@ form {
   }
 
   /* Button Optimization */
-  .btn, button[type="submit"] {
+  .btn, 
+  button[type="submit"],
+  .reset-btn,
+  .version-trigger-btn {
     width: 100% !important; 
     height: 44px;
-    font-size: 16px;
-    margin-top: 8px;
+    font-size: 14px !important;
+    margin-top: 4px;
   }
 
   /* Data Grid Overflow Containment */
@@ -696,6 +751,12 @@ form {
     white-space: nowrap; 
     -webkit-overflow-scrolling: touch; 
     margin-bottom: 24px;
+  }
+
+  /* Thumbnail Constraints inside tables */
+  .sunglasses-thumbnail {
+    width: 150px !important;
+    height: auto !important;
   }
 
   /* Neutralize Hardcoded Inline Desktop Spacers */
