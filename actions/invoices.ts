@@ -156,7 +156,7 @@ export async function getInvoiceSunglassesTable() {
       orderBy: { invoiceItemID: 'asc' }
     })
 
-    return lines.map(line => {
+    return lines.map((line: any) => {
       if (line.sunglasses) {
         return {
           ...line,
