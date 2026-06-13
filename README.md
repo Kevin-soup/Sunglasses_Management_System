@@ -21,14 +21,17 @@ A full stack product management application designed to track customers, employe
 
 ## Features
 
-### State Recovery & Lifecycle
-* **Instant Reset**: Backs up active tables to a snapshot file before initializing a clean, seeded state.
-* **Rolling Rollback**: Captures and maintains the last 5 operational database states for point in time recovery.
-* **Health Tracking**: Visual UI badge displaying active database connection stability.
+### Database Reset
+* Backs up active tables to a snapshot file before initializing a clean, seeded state.
 
-### Data Management
-* **Validation Forms**: Strict type-checked entry points for onboarding personnel, customers, and stock.
-* **Inline Mutation**: Secure operational components handling atomic updates to prices, counts, and status flags.
+### Database Rollback
+* Captures and maintains the last 5 operational database states for data recoveries.
+
+### Health Tracking
+* Visual UI badge displaying active database connection stability in real time.
+
+### Validation Forms
+* Strict type checked entry points for database tables.
 
 
 ## Relational Logic
@@ -45,7 +48,7 @@ A full stack product management application designed to track customers, employe
 
 ## Database Schema
 
-![Schema Diagram](/assets/schema_diagram.png)
+![Schema Diagram](public/assets/schema_diagram.png)
 
 
 ## Citations
