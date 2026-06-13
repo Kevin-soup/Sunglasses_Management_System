@@ -14,6 +14,9 @@ export interface DatabaseVersion {
   createdAt: string
 }
 
+// Global variable.
+const BACKUP_PREFIX = 'db-backup-'
+
 /**
  * PROCEDURE: Fetch Database Versions
  */
@@ -36,12 +39,37 @@ export async function getDatabaseVersions(): Promise<DatabaseVersion[]> {
     const data = await response.json()
     
     return data.branches
-      .filter((b: any) => b.name.startsWith('backup-before-reset-'))
+      .filter((b: any) => b.name.startsWith(BACKUP_PREFIX) || b.name.startsWith('backup-before-reset-'))
       .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .map((b: any) => {
-        const rawDate = b.name.replace('backup-before-reset-', '')
-        const cleanName = rawDate.split('T')[0] + ' ' + (rawDate.split('T')[1]?.substring(0, 5) || '')
-        return { id: b.id, name: `Backup (${cleanName.trim()})`, createdAt: b.created_at }
+        const rawDate = b.name
+          .replace(BACKUP_PREFIX, '')
+          .replace('backup-before-reset-', '')
+        
+        try {
+          // Normalize divider tokens regardless of which prefix generated the branch
+          const normalizedStr = rawDate.replace('T', '-')
+          const tokens = normalizedStr.split('-')
+          
+          const year = tokens[0]
+          const month = tokens[1]
+          const day = tokens[2]
+          const hourRaw = tokens[3]
+          const minuteRaw = tokens[4]
+
+          let hour = parseInt(hourRaw, 10)
+          const ampm = hour >= 12 ? 'PM' : 'AM'
+          hour = hour % 12
+          hour = hour ? hour : 12
+
+          return { 
+            id: b.id, 
+            name: `Backup: ${month}/${day}/${year} at ${hour}:${minuteRaw} ${ampm}`, 
+            createdAt: b.created_at 
+          }
+        } catch {
+          return { id: b.id, name: b.name, createdAt: b.created_at }
+        }
       })
   } catch (error) {
     return []
@@ -77,7 +105,15 @@ export async function resetDatabase() {
       }
 
       const parentBranchInternalId = defaultBranch.id
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+      
+      // Formats a clean, readable timestamp for Neon: YYYY-MM-DD-HH-MM
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hour = String(now.getHours()).padStart(2, '0')
+      const minute = String(now.getMinutes()).padStart(2, '0')
+      const cleanTimestamp = `${year}-${month}-${day}-${hour}-${minute}`
 
       console.log(`[Neon] Creating branch from parent ID: ${parentBranchInternalId}`)
 
@@ -90,7 +126,7 @@ export async function resetDatabase() {
         },
         body: JSON.stringify({ 
           branch: { 
-            name: `backup-before-reset-${timestamp}`,
+            name: `${BACKUP_PREFIX}${cleanTimestamp}`, 
             parent_id: parentBranchInternalId
           },
           endpoints: [
@@ -118,9 +154,10 @@ export async function resetDatabase() {
       if (freshListResponse.ok) {
         const freshData = await freshListResponse.json()
         const backupBranches = freshData.branches
-          .filter((b: any) => b.name.startsWith('backup-before-reset-'))
+          .filter((b: any) => b.name.startsWith(BACKUP_PREFIX) || b.name.startsWith('backup-before-reset-'))
           .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
 
+        // Maintain 5 versions max across both old and new layouts.
         if (backupBranches.length > 5) {
           console.log(`[Neon] Deleting oldest backup branch: ${backupBranches[0].name}`)
           await fetch(`https://console.neon.tech/api/v2/projects/${projectId}/branches/${backupBranches[0].id}`, {
@@ -166,7 +203,6 @@ export async function restoreDatabaseToVersion(branchId: string) {
   }
 
   try {
-    // Get branch host string from Neon.
     const endpointsResponse = await fetch(`https://console.neon.tech/api/v2/projects/${projectId}/endpoints`, {
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
       next: { revalidate: 0 }
@@ -183,14 +219,12 @@ export async function restoreDatabaseToVersion(branchId: string) {
       return { success: false, error: 'Active compute node warming up. Please try again in 3 seconds.' }
     }
 
-    // Build connection URL.
     const baseDbUrl = process.env.DATABASE_URL || ''
     const passwordMatch = baseDbUrl.match(/:\/\/([^:]+):([^@]+)@/)
     const dbUser = passwordMatch ? passwordMatch[1] : 'neondb_owner'
     const dbPass = passwordMatch ? passwordMatch[2] : ''
     const backupBranchUrl = `postgresql://${dbUser}:${dbPass}@${branchEndpoint.host}/neondb?sslmode=require`
 
-    // Fetch data using PG client.
     const client = new Client({ connectionString: backupBranchUrl })
     await client.connect()
 
@@ -202,7 +236,6 @@ export async function restoreDatabaseToVersion(branchId: string) {
 
     await client.end()
 
-    // Overwrite production using main Prisma client.
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.invoiceSunglasses.deleteMany({})
       await tx.invoices.deleteMany({})
