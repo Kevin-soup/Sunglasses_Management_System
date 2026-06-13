@@ -14,7 +14,7 @@ export async function getCustomersTable() {
     const records = await prisma.customers.findMany({
       orderBy: { customerID: 'asc' },
     })
-    return records.map((customer) => ({
+    return records.map((customer: any) => ({
       ...customer,
       email: customer.email ?? 'N/A',
     }))
