@@ -143,7 +143,6 @@ export default function CustomersPage() {
             name="email" 
             id="create_email" 
             placeholder="sample@example.com" 
-            data-hover-reveal="true"
           />
         </div>
 
@@ -155,7 +154,6 @@ export default function CustomersPage() {
             id="create_phoneNumber" 
             placeholder="123-456-7890" 
             pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" 
-            data-hover-reveal="true"
             required 
           />
         </div>
@@ -222,7 +220,6 @@ export default function CustomersPage() {
             value={selectedCustomer?.email || ''} 
             onChange={(e) => setSelectedCustomer(prev => prev ? { ...prev, email: e.target.value } : null)} 
             placeholder="sample@example.com"
-            data-hover-reveal="true"
           />
         </div>
 
@@ -236,7 +233,6 @@ export default function CustomersPage() {
             onChange={(e) => setSelectedCustomer(prev => prev ? { ...prev, phoneNumber: e.target.value } : null)} 
             placeholder="123-456-7890"
             pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-            data-hover-reveal="true"
             required 
           />
         </div>
