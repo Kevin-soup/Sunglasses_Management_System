@@ -16,7 +16,7 @@ export async function getSunglassesTable() {
     })
     
     // Convert Decimal into string. Spreading (...item) automatically includes imagePath.
-    return records.map(item => ({
+    return records.map((item: any) => ({
       ...item,
       retailPrice: item.retailPrice.toString()
     }))
