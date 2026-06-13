@@ -9,21 +9,21 @@ The system implements automated backup mechanics, live health monitoring, and de
 Built for high volume operations, it ensures zero transaction loss and precise data consistency across the schema.
 
 
-##### **LIVE APPLICATION:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
+### **LIVE APPLICATION:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
 
 
 ## Features
 
-#### Save and Reset
+#### 1. State Save&Reset
 * Backs up active tables to database branch before initializing a clean, seeded state.
 
-#### Database Rollback
+#### 2. Database Rollback
 * Captures and maintains the last 5 operational database states for point-in-time recovery.
 
-#### Connection Status
+#### 3. Connection Status
 * Visual UI badge displaying active database connection stability in real time.
 
-#### Form Validation
+#### 4. Form Validation
 * Strict type-checked entry points for onboarding personnel, customers, and stock.
 
 
@@ -34,17 +34,13 @@ Built for high volume operations, it ensures zero transaction loss and precise d
 
 ## Database Logic
 
-#### Tables
-* `Customers`, `Employees`, `Invoices`, `Sunglasses`, and `InvoiceSunglasses` (many-to-many relationship)
+**Tables:** `Customers`, `Employees`, `Invoices`, `Sunglasses`, and `InvoiceSunglasses`(M:M)
 
-#### Duplicate Protection
-* A composite unique constraint on `InvoiceSunglasses([invoiceID, itemID])` halts duplication within a single invoice.
+**Duplicate Protection:** Uses composite unique constraints to block duplications.
 
-#### Database Integrity
-* `onDelete: Restrict` blocks deletion of customers or employees linked to historical transaction records.
+**Database Integrity:** `onDelete: Restrict` prevents deletions linked to transaction records.
 
-#### Automated Cascade
-* `onDelete: Cascade` purges line items instantly if parent invoice is removed to prevent orphaned data.
+**Automated Cascade:** `onDelete: Cascade` purges line items if parent invoice is removed.
 
 
 ## System Architecture  
