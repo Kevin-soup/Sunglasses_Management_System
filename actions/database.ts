@@ -16,7 +16,7 @@ const execAsync = promisify(exec)
 export async function resetDatabase() {
   try {
     // Wipe existing data.
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.invoiceSunglasses.deleteMany({})
       await tx.invoices.deleteMany({})
       await tx.customers.deleteMany({})
