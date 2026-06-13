@@ -18,7 +18,11 @@ export default function Navigation() {
     const result = await resetDatabase()
     if (result.success) {
       alert('Database has been reset!')
-      window.location.reload() // Refresh UI state
+      
+      // Tell the dropdown on the next page load that a fresh backup is pending setup
+      sessionStorage.setItem('pending_backup_refresh', 'true')
+      
+      window.location.reload() 
     } else {
       alert(`The server encountered an error during reset: ${result.error}`)
     }
@@ -36,12 +40,14 @@ export default function Navigation() {
         <span className="app-title">Sunglasses Management Terminal</span>
         
         <div className="control-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <VersionDropdown />
-
+          
           <div className="nav-status-badge">
             <span className="status-dot-pulse"></span>
             <span className="nav-status-text">Database Connected</span>
           </div>
+          
+          <VersionDropdown />
+
           <button onClick={handleReset} className="reset-btn">
             Reset Database
           </button>

@@ -614,57 +614,77 @@ form input[type="date"][data-hover-reveal="true"]:focus::-webkit-calendar-picker
   font-style: italic;
 }
 
-/* Database Rollback Dropdown  */
+/* --- Database Rollback Button --- */
 
+/* Container must wrap the button and the popup */
 .version-dropdown-container {
   position: relative;
-  inline-size: max-content;
+  display: inline-block;
 }
 
+/* --- Database Rollback Button --- */
 .version-trigger-btn {
-  padding: 4px 12px;
-  background-color: #27272a;
+  background-color: #0066cc;
   color: #ffffff;
+  border: 1px solid #0052a3;
+  border-radius: 6px;
+  padding: 6px 14px;
   font-size: 12px;
-  border-radius: 4px;
-  border: 1px solid #3f3f46;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 .version-trigger-btn:hover {
-  background-color: #3f3f46;
-  border-color: #52525b;
+  background-color: #0052a3;
+  border-color: #004080;
 }
 
+.version-trigger-btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.92);
+}
+
+/* --- Dropdown Menu Popup --- */
 .version-menu-popup {
   position: absolute;
-  inset-block-start: 100%;
-  inset-inline-end: 0; 
-  margin-top: 8px;
-  inline-size: 240px;
-  background-color: #18181b;
-  border: 1px solid #3f3f46;
+  top: 100%;
+  left: 0; 
+  margin-top: 6px;
+  width: 240px;
+  background-color: #1f2937; 
+  border: 1px solid #374151;  
   border-radius: 6px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
   z-index: 50;
   padding: 4px 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+.version-menu-popup.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .version-no-backups {
   display: block;
   padding: 8px 12px;
-  font-size: 11px;
-  color: #71717a;
+  font-size: 12px;
+  color: #9ca3af; 
+  font-style: italic;
 }
 
 .version-item-link {
   display: block;
   padding: 8px 12px;
-  font-size: 11px;
-  color: #e4e4e7;
+  font-size: 12px;
+  color: #e5e7eb;
   text-decoration: none;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid #374151;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -673,7 +693,7 @@ form input[type="date"][data-hover-reveal="true"]:focus::-webkit-calendar-picker
 }
 
 .version-item-link:hover {
-  background-color: #27272a;
+  background-color: #0066cc; 
   color: #ffffff;
 }
 
