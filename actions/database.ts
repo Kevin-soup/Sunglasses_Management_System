@@ -26,7 +26,7 @@ export async function resetDatabase() {
     })
 
     // Executes script using locally cached node binaries.
-    await execAsync('npx ts-node prisma/seed.ts')
+    await execAsync('npx tsx prisma/seed.ts')
 
     revalidatePath('/customers')
     revalidatePath('/employees')
