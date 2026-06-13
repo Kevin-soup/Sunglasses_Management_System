@@ -9,12 +9,12 @@ The system implements automated backup mechanics, live health monitoring, and de
 Built for high volume operations, it ensures zero transaction loss and precise data consistency across the schema.
 
 
-### **LIVE APPLICATION:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
+### **Live Application:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
 
 
 ## Features
 
-#### 1. State Save&Reset
+#### 1. State Save and Reset
 * Backs up active tables to database branch before initializing a clean, seeded state.
 
 #### 2. Database Rollback
@@ -34,13 +34,13 @@ Built for high volume operations, it ensures zero transaction loss and precise d
 
 ## Database Logic
 
-**Tables:** `Customers`, `Employees`, `Invoices`, `Sunglasses`, and `InvoiceSunglasses`(M:M)
+* **Tables:** `Customers`, `Employees`, `Invoices`, `Sunglasses`, and `InvoiceSunglasses`(M:M)
 
-**Duplicate Protection:** Uses composite unique constraints to block duplications.
+* **Duplicate Protection:** Uses composite unique constraints to block duplications.
 
-**Database Integrity:** `onDelete: Restrict` prevents deletions linked to transaction records.
+* **Database Integrity:** `onDelete: Restrict` prevents deletions linked to transaction records.
 
-**Automated Cascade:** `onDelete: Cascade` purges line items if parent invoice is removed.
+* **Automated Cascade:** `onDelete: Cascade` purges line items if parent invoice is removed.
 
 
 ## System Architecture  
