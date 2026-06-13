@@ -29,19 +29,36 @@ export default function EmployeesPage() {
     return `${year}-${month}-${day}`
   }
 
-  // READ: Hydrate the data grid matrix on mount.
-  async function loadTable() {
+  useEffect(() => {
+    let isMounted = true 
+
+    async function loadTable() {
+      try {
+        const records = await getEmployeesTable()
+        if (isMounted) {
+          setData(records as EmployeeRecord[])
+        }
+      } catch {
+        alert('Failed to sync data grid matrix from server.')
+      }
+    }
+
+    loadTable()
+
+    return () => {
+      isMounted = false 
+    }
+  }, [])
+
+  // READ: Isolated table refresh routine to call safely after mutations
+  async function refreshTable() {
     try {
       const records = await getEmployeesTable()
       setData(records as EmployeeRecord[])
-    } catch (error) {
-      alert('Failed to sync data grid matrix from server.')
+    } catch {
+      alert('Failed to resync data grid matrix from server.')
     }
   }
-
-  useEffect(() => {
-    loadTable()
-  }, [])
 
   // CREATE: Handle insertion submission pipelines.
   async function handleCreate(formData: FormData) {
@@ -55,10 +72,9 @@ export default function EmployeesPage() {
       return
     }
 
-    // Pass raw string directly to avoid client-side UTC shifts.
     const result = await createEmployee(firstName, lastName, hireDateString, isActiveNumber)
     if (result.success) {
-      await loadTable()
+      await refreshTable()
       const createForm = document.getElementById('create-employee-form') as HTMLFormElement
       createForm?.reset()
     } else {
@@ -80,7 +96,6 @@ export default function EmployeesPage() {
       return
     }
 
-    // Pass raw string directly to avoid client-side UTC shifts.
     const result = await updateEmployee(
       selectedEmployee.employeeID,
       firstName,
@@ -90,7 +105,7 @@ export default function EmployeesPage() {
     )
 
     if (result.success) {
-      await loadTable()
+      await refreshTable()
       setSelectedEmployee(null)
     } else {
       alert(`Update processing failure: ${result.error}`)

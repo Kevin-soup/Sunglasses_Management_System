@@ -3,6 +3,7 @@
 'use server'
 
 import { prisma } from '../services/prisma'
+import { Prisma } from '@prisma/client'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { revalidatePath } from 'next/cache' 
@@ -16,7 +17,7 @@ const execAsync = promisify(exec)
 export async function resetDatabase() {
   try {
     // Wipe existing data.
-    await prisma.$transaction(async (tx: any) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.invoiceSunglasses.deleteMany({})
       await tx.invoices.deleteMany({})
       await tx.customers.deleteMany({})
@@ -32,11 +33,8 @@ export async function resetDatabase() {
     revalidatePath('/invoices')
 
     return { success: true, error: null }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Database Reset Pipeline Failed:', error)
-    return { 
-      success: false, 
-      error: error.message || 'ERR_DATABASE_RESET_AND_SEED_FAILED' 
-    }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown database error' }
   }
 }

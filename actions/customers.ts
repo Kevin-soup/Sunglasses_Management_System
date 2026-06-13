@@ -3,6 +3,7 @@
 'use server'
 
 import { prisma } from '@/services/prisma'
+import { Customers } from '@prisma/client'
 
 /**
  * PROCEDURE: sp_customers_table
@@ -14,7 +15,7 @@ export async function getCustomersTable() {
     const records = await prisma.customers.findMany({
       orderBy: { customerID: 'asc' },
     })
-    return records.map((customer: any) => ({
+    return records.map((customer: Customers) => ({
       ...customer,
       email: customer.email ?? 'N/A',
     }))

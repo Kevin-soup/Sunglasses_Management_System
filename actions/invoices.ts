@@ -2,6 +2,7 @@
 'use server'
 
 import { prisma } from '../services/prisma'
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 /* ==========================================================================
@@ -138,6 +139,17 @@ export async function deleteInvoice(invoiceID: number) {
    SECTION 2: MANY-TO-MANY INTERSECTION CRUD (For app/invoice_sunglasses/page.tsx)
    ========================================================================== */
 
+type InvoiceLineWithRelations = Prisma.InvoiceSunglassesGetPayload<{
+  include: {
+    invoices: {
+      include: {
+        customers: true
+      }
+    }
+    sunglasses: true
+  }
+}>
+
 /**
  * PROCEDURE: sp_invoice_sunglasses_table
  * PURPOSE: Fetch many-to-many child rows, converting product prices to plain strings
@@ -156,7 +168,7 @@ export async function getInvoiceSunglassesTable() {
       orderBy: { invoiceItemID: 'asc' }
     })
 
-    return lines.map((line: any) => {
+    return lines.map((line: InvoiceLineWithRelations) => {
       if (line.sunglasses) {
         return {
           ...line,
@@ -192,6 +204,8 @@ export async function getInvoicesDropdown() {
   }
 }
 
+type SunglassesModel = Prisma.SunglassesGetPayload<object>
+
 /**
  * PROCEDURE: sp_get_sunglasses_dropdown
  * PURPOSE: Hydrate product catalog line options, converting pricing to strings
@@ -202,7 +216,7 @@ export async function getSunglassesDropdown() {
       orderBy: { itemID: 'asc' }
     })
 
-    return products.map((item: any) => ({
+    return products.map((item: SunglassesModel) => ({
       ...item,
       retailPrice: item.retailPrice.toString()
     }))

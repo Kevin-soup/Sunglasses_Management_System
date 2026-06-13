@@ -15,19 +15,36 @@ export default function CustomersPage() {
   const [data, setData] = useState<CustomerRecord[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null)
 
-  // READ: Hydrate the data grid matrix on mount.
-  async function loadTable() {
+  useEffect(() => {
+    let isMounted = true 
+
+    async function loadTable() {
+      try {
+        const records = await getCustomersTable()
+        if (isMounted) {
+          setData(records as CustomerRecord[])
+        }
+      } catch {
+        alert('Failed to sync data grid matrix from server.')
+      }
+    }
+
+    loadTable()
+
+    return () => {
+      isMounted = false 
+    }
+  }, [])
+
+  // READ: Helper routine to manual refresh data grid views after updates
+  async function refreshTable() {
     try {
       const records = await getCustomersTable()
       setData(records as CustomerRecord[])
-    } catch (error) {
-      alert('Failed to sync data grid matrix from server.')
+    } catch {
+      alert('Failed to resync data grid matrix from server.')
     }
   }
-
-  useEffect(() => {
-    loadTable()
-  }, [])
 
   // CREATE: Handle insertion submission pipelines.
   async function handleCreate(formData: FormData) {
@@ -38,7 +55,7 @@ export default function CustomersPage() {
 
     const result = await createCustomer(firstName, lastName, email, phoneNumber)
     if (result.success) {
-      loadTable()
+      await refreshTable()
       const createForm = document.getElementById('create-customer-form') as HTMLFormElement
       createForm?.reset()
     } else {
@@ -64,7 +81,7 @@ export default function CustomersPage() {
     )
 
     if (result.success) {
-      loadTable()
+      await refreshTable()
       setSelectedCustomer(null)
     } else {
       alert(`Update processing failure: ${result.error}`)

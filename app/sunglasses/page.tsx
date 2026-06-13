@@ -16,21 +16,36 @@ export default function SunglassesPage() {
   const [data, setData] = useState<SunglassesRecord[]>([])
   const [selectedItem, setSelectedItem] = useState<SunglassesRecord | null>(null)
 
-  // READ: Hydrate the data grid matrix on mount
-  async function loadTable() {
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadTable() {
+      try {
+        const records = await getSunglassesTable()
+        if (isMounted) {
+          setData(records as SunglassesRecord[])
+        }
+      } catch {
+        alert('Failed to sync data grid matrix from server.')
+      }
+    }
+
+    loadTable()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  async function refreshTable() {
     try {
       const records = await getSunglassesTable()
       setData(records as SunglassesRecord[])
-    } catch (error) {
-      alert('Failed to sync data grid matrix from server.')
+    } catch {
+      alert('Failed to resync data grid matrix from server.')
     }
   }
 
-  useEffect(() => {
-    loadTable()
-  }, [])
-
-  // CREATE: Handle insertion submission pipelines
   async function handleCreate(formData: FormData) {
     const itemName = formData.get('itemName') as string
     const retailPrice = parseFloat(formData.get('retailPrice') as string)
@@ -42,10 +57,9 @@ export default function SunglassesPage() {
       return
     }
 
-    // Pass null as 5th parameter for images.
     const result = await createSunglasses(itemName, retailPrice, stockQuantity, isListed, null)
     if (result.success) {
-      loadTable()
+      await refreshTable()
       const createForm = document.getElementById('create-sunglasses-form') as HTMLFormElement
       createForm?.reset()
     } else {
@@ -53,7 +67,6 @@ export default function SunglassesPage() {
     }
   }
 
-  // UPDATE: Process changes to active selection records.
   async function handleUpdate(formData: FormData) {
     if (!selectedItem) return
 
@@ -67,7 +80,6 @@ export default function SunglassesPage() {
       return
     }
 
-    // Preserve existing image links by passing as the 6th parameter.
     const result = await updateSunglasses(
       selectedItem.itemID,
       itemName,
@@ -78,14 +90,13 @@ export default function SunglassesPage() {
     )
 
     if (result.success) {
-      loadTable()
+      await refreshTable()
       setSelectedItem(null)
     } else {
       alert(`Update processing failure: ${result.error}`)
     }
   }
 
-  // AUTOFILL: Dropdown change handler tracking state mutations
   function handleDropdownChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const iid = parseInt(e.target.value, 10)
     const match = data.find((item) => item.itemID === iid) || null
@@ -101,8 +112,7 @@ export default function SunglassesPage() {
         <thead>
           <tr>
             <th>Item ID</th>
-            {/* 🌟 COLUMN WIDTH BALANCED FOR LARGER ASSETS */}
-            <th style={{ width: '150px', textAlign: 'center' }}>Image</th>
+            <th className="image-cell">Image</th>
             <th>Item Name</th>
             <th>Retail Price</th>
             <th>Stock Quantity</th>
@@ -114,23 +124,17 @@ export default function SunglassesPage() {
             <tr key={row.itemID}>
               <td>{row.itemID}</td>
               
-              {/* IMAGE CONTAINER */}
-              <td style={{ textAlign: 'center' }}>
+              {/* IMAGE CELL */}
+              <td className="image-cell">
                 {row.imagePath ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img 
                     src={row.imagePath} 
                     alt={row.itemName} 
-                    style={{ 
-                      width: '400px',        
-                      height: '80px',        
-                      borderRadius: '10px', 
-                      objectFit: 'contain',  
-                      display: 'block', 
-                      margin: '0 auto' 
-                    }} 
+                    className="sunglasses-thumbnail" 
                   />
                 ) : (
-                  <span style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' }}>None</span>
+                  <span className="no-image-placeholder">None</span>
                 )}
               </td>
 
@@ -145,7 +149,8 @@ export default function SunglassesPage() {
 
       <div className="system-notice">
         <p>
-          <strong>Security Note:</strong> Image uploads are disabled to prevent malicious payloads. </p>
+          <strong>Security Note:</strong> Image uploads are disabled to prevent malicious payloads.
+        </p>
       </div>
 
       {/* CREATE FORM */}

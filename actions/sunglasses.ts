@@ -2,7 +2,8 @@
 
 'use server'
 
-import { prisma } from '@/services/prisma'
+import { prisma } from '../services/prisma'
+import { Prisma } from '@prisma/client'
 
 /**
  * PROCEDURE: sp_sunglasses_table
@@ -16,7 +17,7 @@ export async function getSunglassesTable() {
     })
     
     // Convert Decimal into string. Spreading (...item) automatically includes imagePath.
-    return records.map((item: any) => ({
+    return records.map((item: Prisma.SunglassesGetPayload<object>) => ({
       ...item,
       retailPrice: item.retailPrice.toString()
     }))

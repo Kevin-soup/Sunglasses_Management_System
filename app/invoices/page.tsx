@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+
 import {
   getInvoicesTable,
   getCustomersDropdown,
@@ -32,15 +33,40 @@ interface InvoiceRecord {
 }
 
 export default function InvoicesPage() {
-  
-  // Local state management pipelines.
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([])
   const [customers, setCustomers] = useState<CustomerRecord[]>([])
   const [employees, setEmployees] = useState<EmployeeRecord[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(null)
 
-  // READ: Hydrate list grids and functional lookup dropdown properties on mount.
-  async function loadPageData() {
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadPageData() {
+      try {
+        const [invoiceRows, customerRows, employeeRows] = await Promise.all([
+          getInvoicesTable(),
+          getCustomersDropdown(),
+          getEmployeesDropdown()
+        ])
+        
+        if (isMounted) {
+          setInvoices(invoiceRows as InvoiceRecord[])
+          setCustomers(customerRows as CustomerRecord[])
+          setEmployees(employeeRows as EmployeeRecord[])
+        }
+      } catch {
+        alert('Failed to sync master ledger records from database backend server.')
+      }
+    }
+
+    loadPageData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  async function refreshPageData() {
     try {
       const [invoiceRows, customerRows, employeeRows] = await Promise.all([
         getInvoicesTable(),
@@ -50,16 +76,11 @@ export default function InvoicesPage() {
       setInvoices(invoiceRows as InvoiceRecord[])
       setCustomers(customerRows as CustomerRecord[])
       setEmployees(employeeRows as EmployeeRecord[])
-    } catch (error) {
-      alert('Failed to sync master ledger records from database backend server.')
+    } catch {
+      alert('Failed to resync master ledger records from database backend server.')
     }
   }
 
-  useEffect(() => {
-    loadPageData()
-  }, [])
-
-  // CREATE: Process insertion requests matching the 3-argument relational schema contract.
   async function handleCreate(formData: FormData) {
     const customerID = parseInt(formData.get('customerID') as string, 10)
     const employeeID = parseInt(formData.get('employeeID') as string, 10)
@@ -70,11 +91,10 @@ export default function InvoicesPage() {
       return
     }
 
-    // Pass raw string directly to avoid client-side UTC shifts.
     const result = await createInvoice(customerID, employeeID, rawDate)
     
     if (result.success) {
-      await loadPageData()
+      await refreshPageData()
       const formElement = document.getElementById('create-invoice-form') as HTMLFormElement
       formElement?.reset()
     } else {
@@ -82,7 +102,6 @@ export default function InvoicesPage() {
     }
   }
 
-  // UPDATE: Modify properties of an existing parent row record configuration
   async function handleUpdate(formData: FormData) {
     if (!selectedInvoice) return
 
@@ -95,7 +114,6 @@ export default function InvoicesPage() {
       return
     }
 
-    // Pass raw string directly to avoid client-side UTC shifts
     const result = await updateInvoice(
       selectedInvoice.invoiceID,
       customerID,
@@ -104,20 +122,19 @@ export default function InvoicesPage() {
     )
 
     if (result.success) {
-      await loadPageData()
+      await refreshPageData()
       setSelectedInvoice(null)
     } else {
       alert(`Update processing error: ${result.error}`)
     }
   }
 
-  // DELETE: Drop an independent primary row logging record
   async function handleDelete(invoiceID: number) {
     if (!confirm('Are you sure you want to delete this invoice? Related lines will be checked.')) return
 
     const result = await deleteInvoice(invoiceID)
     if (result.success) {
-      loadPageData()
+      await refreshPageData()
       if (selectedInvoice?.invoiceID === invoiceID) {
         setSelectedInvoice(null)
       }
@@ -126,18 +143,15 @@ export default function InvoicesPage() {
     }
   }
 
-  // AUTOFILL: Update fields when tracking choice alterations.
   function handleSelectionChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const id = parseInt(e.target.value, 10)
     const match = invoices.find((inv) => inv.invoiceID === id) || null
     setSelectedInvoice(match)
   }
 
-  // Helper utility to safely extract dates into HTML element inputs.
   function formatDateForInput(dateVal: Date | string | undefined): string {
     if (!dateVal) return ''
     
-    // If it is already a clean YYYY-MM-DD string from an input onChange event.
     if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
       return dateVal
     }
@@ -145,7 +159,6 @@ export default function InvoicesPage() {
     const d = new Date(dateVal)
     if (isNaN(d.getTime())) return ''
     
-    // Extract localized numbers instead of UTC conversions.
     const year = d.getFullYear()
     const month = String(d.getMonth() + 1).padStart(2, '0')
     const day = String(d.getDate()).padStart(2, '0')
@@ -154,10 +167,10 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>Invoices Log</h1>
 
-      {/* RENDER MASTER GRID DATA VIEW */}
+      {/* MASTER GRID VIEW */}
       <table border={1} cellPadding={8} style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
         <thead>
           <tr>
@@ -207,7 +220,7 @@ export default function InvoicesPage() {
         </tbody>
       </table>
 
-      {/* CREATE OPERATION FORM WINDOW */}
+      {/* CREATE: FORM */}
       <h2>Create New Invoice</h2>
       <form id="create-invoice-form" action={handleCreate}>
         <div className="form-group">
@@ -246,7 +259,7 @@ export default function InvoicesPage() {
 
       <div style={{ marginBottom: '40px', paddingBottom: '20px' }} />
 
-      {/* UPDATE OPERATION FORM WINDOW */}
+      {/* UPDATE: FORM */}
       <h2>Modify Existing Record</h2>
       <form action={handleUpdate}>
         <div className="form-group">

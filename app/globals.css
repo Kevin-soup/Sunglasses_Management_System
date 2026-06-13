@@ -569,3 +569,28 @@ form input[type="date"]:valid:not(:disabled)::-webkit-datetime-edit-year-field {
   border-radius: 50%;
   display: inline-block;
 }
+
+/* --- Sunglasses Image Cell --- */
+
+/* Container cell constraints */
+.image-cell {
+  text-align: center;
+  width: 150px;
+}
+
+/* Image element */
+.sunglasses-thumbnail {
+  display: block;
+  width: 400px;
+  height: 80px;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* Fallback placeholder text styles */
+.no-image-placeholder {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+}

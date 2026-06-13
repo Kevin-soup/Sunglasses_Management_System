@@ -40,33 +40,67 @@ interface SunglassesDropdownRecord {
   stockQuantity: number
 }
 
+interface PageState {
+  data: LineItemRecord[]
+  invoices: InvoiceDropdownRecord[]
+  sunglasses: SunglassesDropdownRecord[]
+}
+
 export default function InvoiceSunglassesPage() {
-  const [data, setData] = useState<LineItemRecord[]>([])
-  const [invoices, setInvoices] = useState<InvoiceDropdownRecord[]>([])
-  const [sunglasses, setSunglasses] = useState<SunglassesDropdownRecord[]>([])
+  const [state, setState] = useState<PageState>({
+    data: [],
+    invoices: [],
+    sunglasses: []
+  })
   const [selectedLine, setSelectedLine] = useState<LineItemRecord | null>(null)
 
-  // READ: Hydrate relationship data grid and foreign drop lookups on mount.
-  async function loadPageData() {
+  useEffect(() => {
+    let isMounted = true 
+
+    async function loadPageData() {
+      try {
+        const [tableRecords, invoiceRecords, productRecords] = await Promise.all([
+          getInvoiceSunglassesTable(),
+          getInvoicesDropdown(),
+          getSunglassesDropdown()
+        ])
+        
+        if (isMounted) {
+          setState({
+            data: tableRecords as LineItemRecord[],
+            invoices: invoiceRecords as InvoiceDropdownRecord[],
+            sunglasses: productRecords as SunglassesDropdownRecord[]
+          })
+        }
+      } catch {
+        alert('Failed to sync intersection relational grid records from server.')
+      }
+    }
+
+    loadPageData()
+
+    return () => {
+      isMounted = false 
+    }
+  }, [])
+
+  async function refreshPageData() {
     try {
       const [tableRecords, invoiceRecords, productRecords] = await Promise.all([
         getInvoiceSunglassesTable(),
         getInvoicesDropdown(),
         getSunglassesDropdown()
       ])
-      setData(tableRecords as LineItemRecord[])
-      setInvoices(invoiceRecords as InvoiceDropdownRecord[])
-      setSunglasses(productRecords as SunglassesDropdownRecord[])
-    } catch (error) {
-      alert('Failed to sync intersection relational grid records from server.')
+      setState({
+        data: tableRecords as LineItemRecord[],
+        invoices: invoiceRecords as InvoiceDropdownRecord[],
+        sunglasses: productRecords as SunglassesDropdownRecord[]
+      })
+    } catch {
+      alert('Failed to resync interface matrix datasets.')
     }
   }
 
-  useEffect(() => {
-    loadPageData()
-  }, [])
-
-  // CREATE: Handle intersection insertion submission pipelines.
   async function handleCreate(formData: FormData) {
     const invoiceID = parseInt(formData.get('invoiceID') as string, 10)
     const itemID = parseInt(formData.get('itemID') as string, 10)
@@ -79,7 +113,7 @@ export default function InvoiceSunglassesPage() {
 
     const result = await createInvoiceLineItem(invoiceID, itemID, quantity)
     if (result.success) {
-      loadPageData()
+      await refreshPageData()
       const createForm = document.getElementById('create-line-form') as HTMLFormElement
       createForm?.reset()
     } else {
@@ -87,7 +121,6 @@ export default function InvoiceSunglassesPage() {
     }
   }
 
-  // UPDATE: Process modifications to existing intersection pairs.
   async function handleUpdate(formData: FormData) {
     if (!selectedLine) return
 
@@ -101,20 +134,19 @@ export default function InvoiceSunglassesPage() {
 
     const result = await updateInvoiceLineItem(selectedLine.invoiceItemID, itemID, quantity)
     if (result.success) {
-      loadPageData()
+      await refreshPageData()
       setSelectedLine(null)
     } else {
       alert(`Update rejected: ${result.error}`)
     }
   }
 
-  // DELETE: Drop record and restore item stock.
   async function handleDelete(invoiceItemID: number) {
     if (!confirm('Are you sure you want to remove this line item? Stock quantities will be adjusted.')) return
 
     const result = await deleteInvoiceLineItem(invoiceItemID)
     if (result.success) {
-      loadPageData()
+      await refreshPageData()
       if (selectedLine?.invoiceItemID === invoiceItemID) {
         setSelectedLine(null)
       }
@@ -123,19 +155,18 @@ export default function InvoiceSunglassesPage() {
     }
   }
 
-  // AUTOFILL: Dropdown selection change tracker.
   function handleDropdownChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const id = parseInt(e.target.value, 10)
-    const match = data.find((line) => line.invoiceItemID === id) || null
+    const match = state.data.find((line) => line.invoiceItemID === id) || null
     setSelectedLine(match)
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+    <div className="page-container">
       <h1>Invoice Sunglasses (Line Items)</h1>
 
       {/* READ TABLE */}
-      <table border={1} cellPadding={8} style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+      <table border={1} cellPadding={8} className="data-table">
         <thead>
           <tr>
             <th>Line ID</th>
@@ -147,7 +178,7 @@ export default function InvoiceSunglassesPage() {
           </tr>
         </thead>
         <tbody>
-          {data.map((row) => (
+          {state.data.map((row) => (
             <tr key={row.invoiceItemID}>
               <td>{row.invoiceItemID}</td>
               <td>{row.invoiceID}</td>
@@ -175,7 +206,7 @@ export default function InvoiceSunglassesPage() {
           <label htmlFor="create_invoice_id">Invoice:</label>
           <select name="invoiceID" id="create_invoice_id" defaultValue="" required>
             <option value="" disabled>&nbsp;</option>
-            {invoices.map((inv) => (
+            {state.invoices.map((inv) => (
               <option key={inv.invoiceID} value={inv.invoiceID}>
                 Invoice #{inv.invoiceID} ({inv.customers ? `${inv.customers.firstName} ${inv.customers.lastName}` : 'N/A'})
               </option>
@@ -187,7 +218,7 @@ export default function InvoiceSunglassesPage() {
           <label htmlFor="create_item_id">Sunglasses:</label>
           <select name="itemID" id="create_item_id" defaultValue="" required>
             <option value="" disabled>&nbsp;</option>
-            {sunglasses.map((sun) => (
+            {state.sunglasses.map((sun) => (
               <option key={sun.itemID} value={sun.itemID}>
                 {sun.itemName} (Available: {sun.stockQuantity})
               </option>
@@ -205,7 +236,7 @@ export default function InvoiceSunglassesPage() {
         </button>
       </form>
 
-      <div style={{ marginBottom: '40px', paddingBottom: '20px' }} />
+      <div className="form-spacer" />
 
       {/* UPDATE FORM */}
       <h2>Update Item</h2>
@@ -219,7 +250,7 @@ export default function InvoiceSunglassesPage() {
             required
           >
             <option value="" disabled>&nbsp;</option>
-            {data.map((row) => (
+            {state.data.map((row) => (
               <option key={row.invoiceItemID} value={row.invoiceItemID}>
                 Line #{row.invoiceItemID} (Inv #{row.invoiceID} - {row.sunglasses?.itemName})
               </option>
@@ -237,7 +268,7 @@ export default function InvoiceSunglassesPage() {
             required
           >
             <option value="" disabled>&nbsp;</option>
-            {sunglasses.map((sun) => (
+            {state.sunglasses.map((sun) => (
               <option key={sun.itemID} value={sun.itemID}>
                 {sun.itemName} (Available: {sun.stockQuantity})
               </option>
@@ -261,7 +292,8 @@ export default function InvoiceSunglassesPage() {
         <button 
           type="submit" 
           className="btn btn-save"
-          disabled={!selectedLine}         >
+          disabled={!selectedLine}
+        >
           Update Item
         </button>
       </form>
