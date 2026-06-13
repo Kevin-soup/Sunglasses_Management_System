@@ -647,32 +647,81 @@ form {
   }
 
   /* Structural Global Layout Header Fixes */
+  .chrome-header {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
   .control-strip {
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: center !important;
+    text-align: center !important;
     gap: 12px !important;
     padding: 0 16px 12px 16px !important;
   }
 
+  /* Force action items (Reset, Rollback, Connected Badge) to stack neatly */
   .control-actions {
-    flex-direction: row-reverse !important;
-    justify-content: space-between !important;
+    flex-direction: column !important;
+    align-items: center !important;
     width: 100% !important;
+    gap: 8px !important;
   }
 
-  /* Navigation Bar Realignment */
-  .chrome-tab-bar {
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    padding-left: 12px !important;
-    gap: 4px !important;
-  }
-
-  .chrome-tab {
-    flex: 1 1 auto !important;
+  /* Make header buttons and badges uniform and centered */
+  .reset-btn,
+  .version-dropdown-container,
+  .version-trigger-btn,
+  .nav-status-badge {
+    width: 100% !important;
+    max-width: 280px !important;
+    justify-content: center !important;
     text-align: center !important;
-    padding: 8px 10px !important;
-    font-size: 12px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Fix the Navigation Links Layout Grid */
+  .chrome-tab-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    background-color: #f0f4f8 !important;
+    border-radius: 8px;
+    margin: 12px !important;
+  }
+
+  /* Format Individual Navigation Link Blocks */
+  .chrome-tab {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 12px 8px !important;
+    font-size: 13px !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    margin-bottom: 0 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .chrome-tab:not(.active):hover {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+  }
+
+  /* Highlight state for active mobile link button */
+  .chrome-tab.active {
+    background-color: #0066cc !important;
+    color: #ffffff !important;
+    border-color: #0052a3 !important;
+    font-weight: 700 !important;
+    border-bottom: 1px solid #0052a3 !important;
+    border-radius: 6px !important;
   }
 
   /* Homepage Systems Stack Overrides */
@@ -734,9 +783,7 @@ form {
 
   /* Button Optimization */
   .btn, 
-  button[type="submit"],
-  .reset-btn,
-  .version-trigger-btn {
+  button[type="submit"] {
     width: 100% !important; 
     height: 44px;
     font-size: 14px !important;
