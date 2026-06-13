@@ -202,7 +202,7 @@ export async function getSunglassesDropdown() {
       orderBy: { itemID: 'asc' }
     })
 
-    return products.map(item => ({
+    return products.map((item: any) => ({
       ...item,
       retailPrice: item.retailPrice.toString()
     }))
