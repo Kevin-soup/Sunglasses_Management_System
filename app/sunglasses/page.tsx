@@ -149,7 +149,7 @@ export default function SunglassesPage() {
 
       <div className="system-notice">
         <p>
-          <strong>Security Note:</strong> Image uploads are disabled to prevent malicious payloads.
+          <strong>Security Note:</strong> Image upload features disabled to prevent malicious payloads.
         </p>
       </div>
 

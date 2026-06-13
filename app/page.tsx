@@ -31,7 +31,7 @@ export default function HomePage() {
             </div>
             {stat.route !== '#' && (
               <Link href={stat.route} className="system-card-link">
-                Open Table →
+                Got to Table →
               </Link>
             )}
           </div>
