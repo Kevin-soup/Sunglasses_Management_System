@@ -241,6 +241,7 @@ form {
   margin-top: 16px;
   margin-bottom: 32px;
 }
+
 /* Container for the form row */
 .form-row {
   display: flex;
@@ -548,7 +549,7 @@ form {
 
 /* --- Database Rollback Button --- */
 
-/* Container must wrap the button and the popup */
+/* Container wrap button and popup */
 .version-dropdown-container {
   position: relative;
   display: inline-block;
@@ -634,16 +635,27 @@ form {
    ========================================================================== */
    
 @media (max-width: 767px) {
+  /* Box Adjustments */
   body, .page-container, div[style*="padding: 20px"] {
     padding: 12px !important; 
     box-sizing: border-box;
   }
 
+  /* Structural Form Engine Overrides */
+  form,
+  .form-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    margin-bottom: 24px !important;
+  }
+
+  /* Container Alignment */
   .form-group {
     display: flex;
     flex-direction: column; 
-    margin-bottom: 16px;
-    width: 100%;
+    margin-bottom: 0px; /* Managed by the form flex gap */
+    width: 100% !important;
   }
 
   .form-group label {
@@ -651,6 +663,7 @@ form {
     font-weight: 600;
   }
 
+  /* Form Element Adjustments */
   .form-group input,
   .form-group select,
   .form-group textarea {
@@ -662,6 +675,11 @@ form {
     box-sizing: border-box !important;
   }
 
+  /* Prevent Helper Text Clipping */
+  .form-group small {
+    white-space: normal !important;
+  }
+
   /* Button Optimization */
   .btn, button[type="submit"] {
     width: 100% !important; 
@@ -670,6 +688,7 @@ form {
     margin-top: 8px;
   }
 
+  /* Data Grid Overflow Containment */
   table {
     display: block;
     width: 100% !important;
@@ -677,5 +696,11 @@ form {
     white-space: nowrap; 
     -webkit-overflow-scrolling: touch; 
     margin-bottom: 24px;
+  }
+
+  /* Neutralize Hardcoded Inline Desktop Spacers */
+  div[style*="margin-bottom: 40px"] {
+    margin-bottom: 16px !important;
+    padding-bottom: 0px !important;
   }
 }
