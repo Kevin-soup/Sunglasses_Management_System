@@ -9,25 +9,22 @@ The system implements automated backup mechanics, live health monitoring, and de
 Built for high volume operations, it ensures zero transaction loss and precise data consistency across the schema.
 
 
-**LIVE APPLICATION:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
+##### **LIVE APPLICATION:** [sunglasses-management-system.vercel.app](https://sunglasses-management-system.vercel.app)
 
 
 ## Features
 
-#### Instant Reset
-* Backs up active tables to a snapshot file before initializing a clean, seeded state.
+#### Save and Reset
+* Backs up active tables to database branch before initializing a clean, seeded state.
 
-#### Rolling Rollback
+#### Database Rollback
 * Captures and maintains the last 5 operational database states for point-in-time recovery.
 
-#### Health Tracking
+#### Connection Status
 * Visual UI badge displaying active database connection stability in real time.
 
-#### Validation Forms
+#### Form Validation
 * Strict type-checked entry points for onboarding personnel, customers, and stock.
-
-#### Inline Mutation
-* Secure operational components handling atomic updates to prices, counts, and status flags.
 
 
 ## Database Schema
@@ -35,23 +32,19 @@ Built for high volume operations, it ensures zero transaction loss and precise d
 ![Schema Diagram](public/assets/schema_diagram.png)
 
 
-## Relational Logic
+## Database Logic
 
 #### Tables
-* `Customers`, `Employees`, `Invoices`, and `Sunglasses`
+* `Customers`, `Employees`, `Invoices`, `Sunglasses`, and `InvoiceSunglasses` (many-to-many relationship)
 
-#### Intersection Table
-* `InvoiceSunglasses` manages the many-to-many relationship between Invoices and Sunglasses.
-
-#### Duplicate Items
+#### Duplicate Protection
 * A composite unique constraint on `InvoiceSunglasses([invoiceID, itemID])` halts duplication within a single invoice.
 
-#### Audit Protection
+#### Database Integrity
 * `onDelete: Restrict` blocks deletion of customers or employees linked to historical transaction records.
 
 #### Automated Cascade
 * `onDelete: Cascade` purges line items instantly if parent invoice is removed to prevent orphaned data.
-
 
 
 ## System Architecture  
