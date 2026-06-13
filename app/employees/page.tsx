@@ -66,8 +66,12 @@ export default function EmployeesPage() {
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
     const hireDateString = formData.get('hireDate') as string
-    const isActiveNumber = parseInt(formData.get('isActive') as string, 10)
     const terminationDateString = (formData.get('terminationDate') as string) || null
+    
+    // BUSINESS CONSTRAINT: Force active status to 0 (No) if a termination date is present
+    const isActiveNumber = terminationDateString 
+      ? 0 
+      : parseInt(formData.get('isActive') as string, 10)
 
     if (!hireDateString) {
       alert('A valid hiring date metric is required.')
@@ -91,8 +95,12 @@ export default function EmployeesPage() {
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
     const hireDateString = formData.get('hireDate') as string
-    const isActiveNumber = parseInt(formData.get('isActive') as string, 10)
     const terminationDateString = (formData.get('terminationDate') as string) || null
+
+    // BUSINESS CONSTRAINT: Force active status to 0 (No) if a termination date is present
+    const isActiveNumber = terminationDateString 
+      ? 0 
+      : parseInt(formData.get('isActive') as string, 10)
 
     if (!hireDateString) {
       alert('A valid hiring date metric is required.')
@@ -202,6 +210,13 @@ export default function EmployeesPage() {
             id="create_terminationDate" 
             placeholder=""
             data-hover-reveal="true" 
+            onChange={(e) => {
+              // UI Syncer: If termination date is chosen, auto-flip dropdown selection to 'No'
+              const selectEl = document.getElementById('create_isActive') as HTMLSelectElement
+              if (e.target.value && selectEl) {
+                selectEl.value = '0'
+              }
+            }}
           />
         </div>
 
@@ -288,7 +303,18 @@ export default function EmployeesPage() {
             name="terminationDate" 
             id="update_terminationDate"
             value={selectedEmployee?.terminationDate ? formatDateForInput(selectedEmployee.terminationDate) : ''} 
-            onChange={(e) => setSelectedEmployee(prev => prev ? { ...prev, terminationDate: e.target.value || null } : null)} 
+            onChange={(e) => {
+              const val = e.target.value || null
+              setSelectedEmployee(prev => {
+                if (!prev) return null
+                // UI & State Syncer: Automatically flip active code state to 'No' (0) if there's a termination date string
+                return { 
+                  ...prev, 
+                  terminationDate: val, 
+                  isActive: val ? 0 : prev.isActive 
+                }
+              })
+            }} 
             placeholder=""
             data-hover-reveal="true"
           />
