@@ -25,8 +25,8 @@ export async function resetDatabase() {
       await tx.sunglasses.deleteMany({})
     })
 
-    // Insert original seed data.
-    await execAsync('npx prisma db seed')
+    // Executes script using locally cached node binaries.
+    await execAsync('npx ts-node prisma/seed.ts')
 
     revalidatePath('/customers')
     revalidatePath('/employees')

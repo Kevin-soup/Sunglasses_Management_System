@@ -8,6 +8,11 @@ import Link from 'next/link'
 import { resetDatabase } from '@/actions/database'
 import '@/app/globals.css'
 
+export const metadata = {
+  title: 'Sunglasses Management System',
+  viewport: 'width=device-width, initial-scale=1', 
+}
+
 export default function RootLayout({
   children,
 }: {
