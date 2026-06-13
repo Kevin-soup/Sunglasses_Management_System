@@ -47,9 +47,17 @@ export default function RootLayout({
             <span className="app-title">
               Sunglasses Management Terminal
             </span>
-            <button onClick={handleReset} className="reset-btn">
-              Reset Database
-            </button>
+            
+            {/* CONTAINER FOR STATUS BADGE */}
+            <div className="control-actions">
+              <div className="nav-status-badge">
+                <span className="status-dot-pulse"></span>
+                <span className="nav-status-text">Database Connected</span>
+              </div>
+              <button onClick={handleReset} className="reset-btn">
+                Reset Database
+              </button>
+            </div>
           </div>
 
           {/* HORIZONTAL TAB BAR NAVIGATION ROW */}
