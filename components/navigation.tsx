@@ -5,6 +5,7 @@
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { resetDatabase } from '@/actions/database'
+import VersionDropdown from './version_dropdown'
 
 export default function Navigation() {
   // Track current URL path for active tab styling
@@ -34,7 +35,9 @@ export default function Navigation() {
       <div className="control-strip">
         <span className="app-title">Sunglasses Management Terminal</span>
         
-        <div className="control-actions">
+        <div className="control-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <VersionDropdown />
+
           <div className="nav-status-badge">
             <span className="status-dot-pulse"></span>
             <span className="nav-status-text">Database Connected</span>

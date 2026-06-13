@@ -1,34 +1,18 @@
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
-import PrismaClientPkg from '@prisma/client/index.js'
+// Seed for Neon database.
 
-// Create pool for database connection.
-const pool = new Pool({ connectionString: process.env.DIRECT_URL })
-
-// Add adapter to Prisma constructor.
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClientPkg.PrismaClient({ adapter })
-
-// Path to public Supabase bucket.
 const supabaseUrl = process.env.SUPABASE_URL
 const bucketUrl = `${supabaseUrl}/storage/v1/object/public/images`
 
-export async function main() {
-  // Lowercase properties to match Prisma keys.
-  await prisma.invoiceSunglasses.deleteMany()
-  await prisma.invoices.deleteMany()
-  await prisma.sunglasses.deleteMany()
-  await prisma.employees.deleteMany()
-  await prisma.customers.deleteMany()
+export async function runSeed(tx: any) {
+  // Reset auto-increment IDs.
+  await tx.$executeRawUnsafe(`TRUNCATE TABLE "InvoiceSunglasses" RESTART IDENTITY CASCADE;`)
+  await tx.$executeRawUnsafe(`TRUNCATE TABLE "Invoices" RESTART IDENTITY CASCADE;`)
+  await tx.$executeRawUnsafe(`TRUNCATE TABLE "Sunglasses" RESTART IDENTITY CASCADE;`)
+  await tx.$executeRawUnsafe(`TRUNCATE TABLE "Employees" RESTART IDENTITY CASCADE;`)
+  await tx.$executeRawUnsafe(`TRUNCATE TABLE "Customers" RESTART IDENTITY CASCADE;`)
 
-  // Reset all auto increment sequences back to 1.
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "InvoiceSunglasses" RESTART IDENTITY CASCADE;`)
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Invoices" RESTART IDENTITY CASCADE;`)
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Sunglasses" RESTART IDENTITY CASCADE;`)
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Employees" RESTART IDENTITY CASCADE;`)
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Customers" RESTART IDENTITY CASCADE;`)
-
-  await prisma.customers.createMany({
+  // Populate tables.
+  await tx.customers.createMany({
     data: [
       { firstName: 'Ava', lastName: 'Nguyen', email: 'ava@example.com', phoneNumber: '503-555-0101' },
       { firstName: 'Leo', lastName: 'Martinez', email: null, phoneNumber: '431-645-0102' },
@@ -37,7 +21,7 @@ export async function main() {
     ],
   })
 
-  await prisma.employees.createMany({
+  await tx.employees.createMany({
     data: [
       { firstName: 'Steve', lastName: 'Adams', hireDate: new Date('2022-03-23'), isActive: 0, terminationDate: new Date('2024-05-10') },
       { firstName: 'Jonny', lastName: 'Patel', hireDate: new Date('2023-01-15'), isActive: 1, terminationDate: null },
@@ -46,10 +30,10 @@ export async function main() {
     ]
   })
   
-  const dbCustomers = await prisma.customers.findMany({ orderBy: { customerID: 'asc' } })
-  const dbEmployees = await prisma.employees.findMany({ orderBy: { employeeID: 'asc' } })
+  const dbCustomers = await tx.customers.findMany({ orderBy: { customerID: 'asc' } })
+  const dbEmployees = await tx.employees.findMany({ orderBy: { employeeID: 'asc' } })
 
-  await prisma.sunglasses.createMany({
+  await tx.sunglasses.createMany({
     data: [
       { itemName: 'Round', retailPrice: 179.99, stockQuantity: 0, isListed: 0, imagePath: `${bucketUrl}/round.png` },
       { itemName: 'Wayfarer', retailPrice: 129.99, stockQuantity: 12, isListed: 1, imagePath: `${bucketUrl}/wayfarer.png` },
@@ -61,22 +45,24 @@ export async function main() {
     ],
   })
 
-  const dbSunglasses = await prisma.sunglasses.findMany({ orderBy: { itemID: 'asc' } })
+  const dbSunglasses = await tx.sunglasses.findMany({ orderBy: { itemID: 'asc' } })
 
-  const invoice1 = await prisma.invoices.create({
+  // Create invoices.
+  const invoice1 = await tx.invoices.create({
     data: { customerID: dbCustomers[0].customerID, employeeID: dbEmployees[1].employeeID, invoiceDate: new Date('2026-02-01') }
   })
-  const invoice2 = await prisma.invoices.create({
+  const invoice2 = await tx.invoices.create({
     data: { customerID: dbCustomers[1].customerID, employeeID: dbEmployees[2].employeeID, invoiceDate: new Date('2026-02-02') }
   })
-  const invoice3 = await prisma.invoices.create({
+  const invoice3 = await tx.invoices.create({
     data: { customerID: dbCustomers[2].customerID, employeeID: dbEmployees[3].employeeID, invoiceDate: new Date('2026-02-03') }
   })
-  const invoice4 = await prisma.invoices.create({
+  const invoice4 = await tx.invoices.create({
     data: { customerID: dbCustomers[3].customerID, employeeID: dbEmployees[1].employeeID, invoiceDate: new Date('2026-03-04') }
   })
 
-  await prisma.invoiceSunglasses.createMany({
+  // Map sunglasses items to invoices.
+  await tx.invoiceSunglasses.createMany({
     data: [
       { invoiceID: invoice1.invoiceID, itemID: dbSunglasses[1].itemID, quantity: 3 },
       { invoiceID: invoice1.invoiceID, itemID: dbSunglasses[2].itemID, quantity: 5 },
@@ -87,11 +73,3 @@ export async function main() {
     ],
   })
 }
-
-main()
-  .catch((e) => { console.error(e); process.exit(1) })
-  .finally(async () => { 
-    await prisma.$disconnect()
-    // Shut down pool connection.
-    await pool.end() 
-  })
